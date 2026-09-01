@@ -51,7 +51,22 @@
     return;
   }
 
-  const course = adminCourse ? { ...(base || {}), ...adminCourse } : base;
+  function mergeCourseData(defaultCourse, savedCourse) {
+    if (!savedCourse) return defaultCourse;
+    const merged = { ...(defaultCourse || {}), ...savedCourse };
+    const defaultVersion = Number(defaultCourse?.contentVersion || 0);
+    const savedVersion = Number(savedCourse?.detailContentVersion || 0);
+    const useLatestDefaultDetail = savedCourse?.detailCustomized !== true && defaultVersion > savedVersion;
+
+    if (useLatestDefaultDetail && defaultCourse) {
+      ["lead", "eyebrow", "badge", "heroPoints", "outcomes", "curriculum", "targets", "benefits", "faqs"].forEach((key) => {
+        if (defaultCourse[key] !== undefined) merged[key] = defaultCourse[key];
+      });
+    }
+    return merged;
+  }
+
+  const course = mergeCourseData(base, adminCourse);
   if (!course) {
     showUnavailable("과정 정보를 찾을 수 없습니다.");
     return;

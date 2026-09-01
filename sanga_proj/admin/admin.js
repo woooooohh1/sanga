@@ -31,6 +31,7 @@
    */
 
   const DB_KEY = "sanga_admin_demo_v1";
+  const COURSE_DETAIL_CONTENT_VERSION = 2;
 
   const seed = {
     courses: [
@@ -44,8 +45,8 @@
         time: "09:00 ~ 13:00",
         tuition: "480,000원",
         support: "자비부담 216,000원",
-        description: "엑셀 실무와 컴퓨터활용능력 2급 필기/실기를 함께 준비합니다.",
-        tags: "엑셀,자격증,국비지원"
+        description: "엑셀 기초부터 함수·데이터 관리·차트, 필기 핵심이론과 실기 기출 유형까지 한 번에 준비합니다.",
+        tags: "컴활2급,엑셀,필기실기,국비지원"
       },
       {
         id: 2,
@@ -57,8 +58,8 @@
         time: "09:30 ~ 16:00",
         tuition: "1,495,680원",
         support: "국민내일배움카드",
-        description: "회계원리, 전산회계, 전산세무, ERP 회계 실무 과정",
-        tags: "회계,전산세무,ERP"
+        description: "회계원리와 분개부터 전표·결산·부가세·원천징수까지 배우며 전산회계 1급과 전산세무 2급을 준비합니다.",
+        tags: "전산회계1급,전산세무2급,회계실무,국비지원"
       },
       {
         id: 3,
@@ -70,8 +71,8 @@
         time: "09:30 ~ 15:00",
         tuition: "900,000원",
         support: "과정별 상이",
-        description: "컴퓨터 기초부터 한글, 엑셀, 파워포인트 활용과 ITQ 자격증까지 준비합니다.",
-        tags: "한글,엑셀,파워포인트,ITQ"
+        description: "컴퓨터 기초와 파일관리부터 한글·엑셀·파워포인트 활용, ITQ 시험 유형까지 차근차근 익힙니다.",
+        tags: "ITQ,한글,엑셀,파워포인트"
       },
       {
         id: 4,
@@ -83,8 +84,8 @@
         time: "19:00 ~ 21:00",
         tuition: "480,000원",
         support: "재직자 국비지원",
-        description: "퇴근 후 야간 시간에 컴퓨터활용능력 2급 필기와 실기를 준비합니다.",
-        tags: "야간,엑셀,국비지원"
+        description: "퇴근 후 야간 시간에 컴활 2급 필기 핵심이론과 엑셀 실기 유형을 집중적으로 준비합니다.",
+        tags: "야간,컴활2급,엑셀,재직자"
       },
       {
         id: 5,
@@ -96,8 +97,8 @@
         time: "19:00 ~ 21:00",
         tuition: "192,000원",
         support: "자비부담 86,400원",
-        description: "업무용 발표자료 제작 능력과 ITQ 파워포인트 자격증을 함께 준비합니다.",
-        tags: "ITQ,파워포인트,야간"
+        description: "도형·표·차트 편집과 슬라이드 구성 능력을 익히며 ITQ 파워포인트 시험까지 준비합니다.",
+        tags: "ITQ,파워포인트,PPT실무,야간"
       },
       {
         id: 6,
@@ -109,8 +110,8 @@
         time: "시간 협의",
         tuition: "과정별 상이",
         support: "일반과정",
-        description: "한글, 엑셀, 파워포인트를 현재 수준과 목표에 맞춰 배우는 개인 맞춤 과정입니다.",
-        tags: "OA,개인수업,기초"
+        description: "현재 수준과 필요한 업무를 확인한 뒤 한글·엑셀·파워포인트 중 필요한 기능을 골라 배우는 맞춤형 OA 과정입니다.",
+        tags: "OA,엑셀,한글,파워포인트"
       }
     ],
     notices: [
@@ -136,9 +137,25 @@
     const fallback = courseDetailDefaults()?.[Number(course?.id)] || {};
     const merged = { ...fallback, ...course };
     const arrayKeys = ["heroPoints", "outcomes", "curriculum", "targets", "benefits", "faqs"];
+    const fallbackVersion = Number(fallback.contentVersion || 0);
+    const savedVersion = Number(course?.detailContentVersion || 0);
+    const useLatestDefaultDetail = course?.detailCustomized !== true && fallbackVersion > savedVersion;
+
     arrayKeys.forEach((key) => {
-      if (!Array.isArray(course?.[key])) merged[key] = Array.isArray(fallback[key]) ? JSON.parse(JSON.stringify(fallback[key])) : [];
+      if (useLatestDefaultDetail && Array.isArray(fallback[key])) {
+        merged[key] = JSON.parse(JSON.stringify(fallback[key]));
+      } else if (!Array.isArray(course?.[key])) {
+        merged[key] = Array.isArray(fallback[key]) ? JSON.parse(JSON.stringify(fallback[key])) : [];
+      }
     });
+
+    if (useLatestDefaultDetail) {
+      ["lead", "eyebrow", "badge"].forEach((key) => {
+        if (fallback[key]) merged[key] = fallback[key];
+      });
+      merged.detailContentVersion = fallbackVersion || COURSE_DETAIL_CONTENT_VERSION;
+    }
+
     if (typeof merged.published !== "boolean") merged.published = true;
     if (!merged.lead) merged.lead = merged.description || "";
     if (!merged.eyebrow) merged.eyebrow = `${courseTypeLabel(merged.type)} · ${merged.category || "교육과정"}`;
@@ -419,7 +436,9 @@
       ...repeaters,
       id: id || nextId(db.courses),
       published: data.published !== "false",
-      lead: data.lead?.trim() || data.description?.trim() || ""
+      lead: data.lead?.trim() || data.description?.trim() || "",
+      detailCustomized: true,
+      detailContentVersion: COURSE_DETAIL_CONTENT_VERSION
     };
     id = payload.id;
 
