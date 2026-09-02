@@ -30,7 +30,7 @@
    * =========================================================
    */
 
-  const DB_KEY = "sanga_admin_demo_v1";
+  const DB_KEY = "sanga_admin_demo_v2";
   const COURSE_DETAIL_CONTENT_VERSION = 2;
 
   const seed = {
@@ -126,10 +126,56 @@
       { id: 2, year: "2011", tag: "PUBLIC TRAINING", title: "직업훈련 교육 확대", description: "국비지원 교육과정을 확대했습니다." }
     ],
     inquiries: [
-      { id: 1, name: "홍길동", phone: "010-1234-5678", course: "실업자 내일배움카드", status: "대기", createdAt: "2026-08-31 14:10", message: "컴활 과정 상담 받고 싶습니다." }
+      { id: 1, name: "홍길동", phone: "010-1234-5678", course: "실업자 내일배움카드", status: "대기", createdAt: "2026-08-31 14:10", message: "컴활 과정 상담 받고 싶습니다.", consultationNote: "" }
     ]
   };
 
+  // v10.7: pagination UI를 충분히 확인할 수 있도록 데모 데이터를 보강합니다.
+  const extraCourseTitles = [
+    ["unemployed", "컴퓨터활용", "컴퓨터활용능력 1급 실기 집중반", "모집중", "09.14 ~ 10.30"],
+    ["unemployed", "회계·ERP", "전산회계 1급 자격증 대비반", "모집중", "09.21 ~ 11.06"],
+    ["worker", "OA", "엑셀 실무 함수와 데이터 분석", "상시접수", "매월 개강"],
+    ["worker", "컴퓨터활용", "퇴근 후 컴퓨터활용능력 1급", "모집중", "10.05 ~ 11.27"],
+    ["general", "디자인", "초보자를 위한 포토샵 기초", "상시접수", "개별 상담"],
+    ["general", "OA", "직장인을 위한 엑셀 문서 자동화", "모집중", "10.12 ~ 11.02"],
+    ["unemployed", "디자인", "GTQ 포토샵 1급 자격증 대비", "모집중", "10.06 ~ 11.17"],
+    ["worker", "ITQ", "ITQ 엑셀·한글 자격증 야간반", "모집중", "10.13 ~ 11.24"],
+    ["general", "컴퓨터기초", "스마트한 문서작성 기초 과정", "상시접수", "개별 상담"],
+    ["unemployed", "사무자동화", "사무행정 실무 종합과정", "모집중", "11.02 ~ 12.18"]
+  ];
+  extraCourseTitles.forEach((item, index) => {
+    seed.courses.push({
+      id: 7 + index, type: item[0], category: item[1], title: item[2], status: item[3],
+      period: item[4], time: index % 2 ? "19:00 ~ 21:00" : "09:30 ~ 13:30",
+      tuition: "과정별 상이", support: "상담 후 안내",
+      description: `${item[2]} 과정의 데모 설명입니다.`, tags: `${item[1]},자격증,실무`, published: true
+    });
+  });
+
+  const demoNames = ["김민지", "이서준", "박지우", "최유진", "정하늘", "윤서연", "한도윤", "오지민", "강민준", "신예린", "임재현", "조수빈", "백현우", "송지안"];
+  const demoCourses = ["컴퓨터활용능력 2급", "전산회계 1급", "엑셀 실무", "ITQ 자격증", "포토샵 기초", "사무행정 실무"];
+  demoNames.forEach((name, index) => {
+    seed.inquiries.push({
+      id: index + 2,
+      name,
+      phone: `010-${String(2100 + index * 37).slice(-4)}-${String(4300 + index * 53).slice(-4)}`,
+      course: demoCourses[index % demoCourses.length],
+      status: ["대기", "상담중", "완료"][index % 3],
+      createdAt: `2026-09-${String(1 + (index % 9)).padStart(2, "0")} ${String(9 + (index % 8)).padStart(2, "0")}:${index % 2 ? "30" : "10"}`,
+      message: `${demoCourses[index % demoCourses.length]} 과정 일정과 지원 여부를 상담받고 싶습니다.`,
+      consultationNote: index % 4 === 1 ? "전화 상담 완료. 다음 개강일 안내 및 준비서류 문자 발송 예정." : (index % 4 === 2 ? "수강 가능 시간 확인 후 재연락 요청." : "")
+    });
+  });
+
+  for (let id = 3; id <= 12; id += 1) {
+    seed.notices.push({ id, title: `9월 교육과정 운영 안내 ${id - 2}`, status: id % 4 === 0 ? "임시저장" : "게시", date: `2026-09-${String(id).padStart(2, "0")}`, views: 40 + id * 13, content: "데모 공지사항입니다." });
+  }
+  for (let id = 2; id <= 11; id += 1) {
+    seed.jobs.push({ id, category: id % 2 ? "사무·회계" : "OA·전산", title: `인천지역 사무직 채용정보 ${id}`, company: `협력기업 ${id}`, status: "게시", date: `2026-09-${String(id + 3).padStart(2, "0")}` });
+  }
+  for (let id = 3; id <= 12; id += 1) {
+    seed.history.push({ id, year: String(2012 + id), tag: id % 2 ? "TRAINING" : "GROWTH", title: `교육 운영 주요 연혁 ${id - 2}`, description: "데모 연혁 데이터입니다." });
+  }
 
   const courseDetailDefaults = () => window.SANGA_COURSE_DETAILS || {};
 
@@ -172,7 +218,25 @@
   const loadDB = () => {
     try {
       const saved = localStorage.getItem(DB_KEY);
-      return saved ? JSON.parse(saved) : structuredClone(seed);
+      if (!saved) return structuredClone(seed);
+      const parsed = JSON.parse(saved);
+      const base = structuredClone(seed);
+      const data = {
+        ...base,
+        ...parsed,
+        courses: Array.isArray(parsed.courses) ? parsed.courses : base.courses,
+        notices: Array.isArray(parsed.notices) ? parsed.notices : base.notices,
+        jobs: Array.isArray(parsed.jobs) ? parsed.jobs : base.jobs,
+        history: Array.isArray(parsed.history) ? parsed.history : base.history,
+        inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : base.inquiries
+      };
+      data.inquiries = data.inquiries.map(i => ({
+        ...i,
+        status: i.status || "대기",
+        message: i.message || "",
+        consultationNote: i.consultationNote || ""
+      }));
+      return data;
     } catch {
       return JSON.parse(JSON.stringify(seed));
     }
@@ -194,6 +258,54 @@
     setTimeout(() => el.classList.remove("show"), 2200);
   }
 
+  function showAdminMessage(title, message, onClose) {
+    let modal = qs("#adminMessageModal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "adminMessageModal";
+      modal.className = "admin-message-modal";
+      modal.setAttribute("aria-hidden", "true");
+      modal.innerHTML = `
+        <div class="admin-message-card" role="alertdialog" aria-modal="true" aria-labelledby="adminMessageTitle" aria-describedby="adminMessageText">
+          <div class="admin-message-icon" aria-hidden="true">!</div>
+          <div class="admin-message-copy">
+            <h3 id="adminMessageTitle"></h3>
+            <p id="adminMessageText"></p>
+          </div>
+          <button type="button" class="admin-message-confirm">확인</button>
+        </div>`;
+      document.body.appendChild(modal);
+    }
+    qs("#adminMessageTitle", modal).textContent = title || "입력값을 확인해주세요";
+    qs("#adminMessageText", modal).textContent = message || "입력 형식을 다시 확인해주세요.";
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    const confirm = qs(".admin-message-confirm", modal);
+    const close = () => {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.removeEventListener("keydown", onKey);
+      if (typeof onClose === "function") setTimeout(onClose, 0);
+    };
+    const onKey = (event) => { if (event.key === "Escape" || event.key === "Enter") close(); };
+    confirm.onclick = close;
+    modal.onclick = (event) => { if (event.target === modal) close(); };
+    document.addEventListener("keydown", onKey);
+    setTimeout(() => confirm.focus(), 0);
+  }
+
+  function decorateResponsiveTables(root = document) {
+    qsa(".admin-table:not(.dashboard-table)", root).forEach(table => {
+      const labels = qsa("thead th", table).map(th => th.textContent.trim());
+      qsa("tbody tr", table).forEach(row => {
+        qsa("td", row).forEach((cell, index) => {
+          if (cell.hasAttribute("colspan")) return;
+          cell.dataset.label = labels[index] || "항목";
+        });
+      });
+    });
+  }
+
   function nextId(list) {
     return list.length ? Math.max(...list.map((x) => Number(x.id) || 0)) + 1 : 1;
   }
@@ -203,6 +315,69 @@
     const sidebar = qs("#adminSidebar");
     btn?.addEventListener("click", () => sidebar?.classList.toggle("open"));
   }
+
+  const pageState = Object.create(null);
+
+  function getPageSlice(key, list, pageSize) {
+    const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+    const page = Math.min(Math.max(1, pageState[key] || 1), totalPages);
+    pageState[key] = page;
+    return { page, totalPages, items: list.slice((page - 1) * pageSize, page * pageSize) };
+  }
+
+  function renderPagination(key, listLength, pageSize, body, rerender) {
+    if (!body) return;
+    let host = body.closest(".table-wrap")?.nextElementSibling;
+    if (!host || !host.classList.contains("pagination")) {
+      host = document.createElement("nav");
+      host.className = "pagination";
+      host.setAttribute("aria-label", "페이지 이동");
+      body.closest(".table-wrap")?.insertAdjacentElement("afterend", host);
+    }
+
+    const totalPages = Math.max(1, Math.ceil(listLength / pageSize));
+    const current = Math.min(Math.max(1, pageState[key] || 1), totalPages);
+    pageState[key] = current;
+
+    if (listLength <= pageSize) {
+      host.innerHTML = "";
+      host.hidden = true;
+      return;
+    }
+
+    host.hidden = false;
+    const start = Math.max(1, Math.min(current - 2, totalPages - 4));
+    const end = Math.min(totalPages, Math.max(5, current + 2));
+    let numbers = "";
+    for (let page = start; page <= end; page += 1) {
+      numbers += `<button type="button" data-page="${page}" class="${page === current ? "active" : ""}" aria-current="${page === current ? "page" : "false"}">${page}</button>`;
+    }
+    host.innerHTML = `
+      <button type="button" data-page="${current - 1}" ${current === 1 ? "disabled" : ""} aria-label="이전 페이지">‹</button>
+      ${numbers}
+      <button type="button" data-page="${current + 1}" ${current === totalPages ? "disabled" : ""} aria-label="다음 페이지">›</button>
+      <span class="pagination-summary">총 ${listLength}건 · ${current}/${totalPages} 페이지</span>
+    `;
+    qsa("button[data-page]", host).forEach(button => {
+      button.addEventListener("click", () => {
+        if (button.disabled) return;
+        pageState[key] = Number(button.dataset.page);
+        rerender();
+      });
+    });
+  }
+
+  function inquiryStatusBadge(status) {
+    const map = {
+      "대기": "badge-wait",
+      "상담중": "badge-progress",
+      "완료": "badge-complete",
+      "취소": "badge-cancel"
+    };
+    return `<span class="badge ${map[status] || "badge-closed"}">${escapeHtml(status || "대기")}</span>`;
+  }
+
+  function resetPage(key) { pageState[key] = 1; }
 
   function updateDashboardStats() {
     const map = {
@@ -223,23 +398,27 @@
     const inquiryBody = qs("#recentInquiries");
 
     if (courseBody) {
-      courseBody.innerHTML = db.courses.slice(0, 5).map(c => `
+      const coursePage = getPageSlice("dashboardCourses", db.courses, 5);
+      courseBody.innerHTML = coursePage.items.map(c => `
         <tr>
           <td>${escapeHtml(c.title)}</td>
           <td>${escapeHtml(c.category)}</td>
           <td><span class="badge ${c.status === "모집중" ? "badge-open" : "badge-closed"}">${escapeHtml(c.status)}</span></td>
         </tr>
       `).join("") || `<tr><td colspan="3">등록된 과정이 없습니다.</td></tr>`;
+      renderPagination("dashboardCourses", db.courses.length, 5, courseBody, renderDashboardRecent);
     }
 
     if (inquiryBody) {
-      inquiryBody.innerHTML = db.inquiries.slice(0, 5).map(i => `
+      const inquiryPage = getPageSlice("dashboardInquiries", db.inquiries, 5);
+      inquiryBody.innerHTML = inquiryPage.items.map(i => `
         <tr>
           <td>${escapeHtml(i.name)}</td>
           <td>${escapeHtml(i.course)}</td>
-          <td><span class="badge badge-draft">${escapeHtml(i.status)}</span></td>
+          <td>${inquiryStatusBadge(i.status)}</td>
         </tr>
       `).join("") || `<tr><td colspan="3">상담 내역이 없습니다.</td></tr>`;
+      renderPagination("dashboardInquiries", db.inquiries.length, 5, inquiryBody, renderDashboardRecent);
     }
   }
 
@@ -247,16 +426,22 @@
     const body = qs("#courseTableBody");
     if (!body) return;
 
-    const keyword = (qs("#courseSearch")?.value || "").toLowerCase();
+    const keyword = (qs("#courseSearch")?.value || "").trim().toLowerCase();
     const type = qs("#courseTypeFilter")?.value || "";
+    const status = qs("#courseStatusFilter")?.value || "";
+    const publish = qs("#coursePublishFilter")?.value || "";
 
     const list = db.courses.filter(c => {
       const matchType = !type || c.type === type;
-      const matchKeyword = !keyword || `${c.title} ${c.category} ${c.description}`.toLowerCase().includes(keyword);
-      return matchType && matchKeyword;
+      const matchStatus = !status || c.status === status;
+      const matchPublish = !publish || (publish === "published" ? c.published !== false : c.published === false);
+      const matchKeyword = !keyword || `${c.title} ${c.category} ${c.description || ""} ${c.period || ""}`.toLowerCase().includes(keyword);
+      return matchType && matchStatus && matchPublish && matchKeyword;
     });
 
-    body.innerHTML = list.map(c => `
+    const page = getPageSlice("courses", list, 8);
+
+    body.innerHTML = page.items.map(c => `
       <tr>
         <td>${c.id}</td>
         <td>${courseTypeLabel(c.type)}</td>
@@ -274,6 +459,9 @@
         </td>
       </tr>
     `).join("") || `<tr><td colspan="8"><div class="empty-state">등록된 과정이 없습니다.</div></td></tr>`;
+
+    decorateResponsiveTables();
+    renderPagination("courses", list.length, 8, body, renderCourses);
 
     qsa("[data-edit-course]").forEach(btn => btn.addEventListener("click", () => openCourseModal(Number(btn.dataset.editCourse))));
     qsa("[data-delete-course]").forEach(btn => btn.addEventListener("click", () => deleteCourse(Number(btn.dataset.deleteCourse))));
@@ -390,6 +578,337 @@
     return { heroPoints: simple("heroPoints"), outcomes, curriculum, targets: simple("targets"), benefits, faqs };
   }
 
+  function parseLegacyCoursePeriod(period) {
+    const text = String(period || "").trim();
+    const match = text.match(/^(\d{1,2})[.\-/](\d{1,2})\s*[~～-]\s*(\d{1,2})[.\-/](\d{1,2})$/);
+    if (!match) return { startDate: "", endDate: "" };
+    const now = new Date();
+    const startYear = now.getFullYear();
+    const sm = Number(match[1]);
+    const sd = Number(match[2]);
+    const em = Number(match[3]);
+    const ed = Number(match[4]);
+    const endYear = em < sm ? startYear + 1 : startYear;
+    const pad = (value) => String(value).padStart(2, "0");
+    return {
+      startDate: `${startYear}-${pad(sm)}-${pad(sd)}`,
+      endDate: `${endYear}-${pad(em)}-${pad(ed)}`
+    };
+  }
+
+  function formatCoursePeriod(startDate, endDate, fallback = "") {
+    const compact = (value) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return "";
+      const [year, month, day] = value.split("-");
+      return `${year}.${month}.${day}`;
+    };
+    const start = compact(startDate);
+    const end = compact(endDate);
+    if (start && end) return `${start} ~ ${end}`;
+    if (start) return `${start} ~`;
+    if (end) return `~ ${end}`;
+    return fallback || "";
+  }
+
+  function formatDateLabel(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return "날짜 선택";
+    const [year, month, day] = value.split("-");
+    return `${year}. ${month}. ${day}.`;
+  }
+
+  function dateFromIso(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return null;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function isoFromDate(date) {
+    const pad = (value) => String(value).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  }
+
+  function positionModernCalendar(root) {
+    const trigger = root.querySelector('[data-date-trigger]');
+    const calendar = root.querySelector('[data-calendar]');
+    if (!trigger || !calendar || calendar.hidden) return;
+    if (window.matchMedia('(max-width: 700px)').matches) {
+      calendar.style.left = '';
+      calendar.style.top = '';
+      calendar.style.right = '';
+      calendar.style.bottom = '';
+      return;
+    }
+    const rect = trigger.getBoundingClientRect();
+    const width = Math.min(318, window.innerWidth - 32);
+    const estimatedHeight = 390;
+    let left = Math.max(16, Math.min(rect.left, window.innerWidth - width - 16));
+    let top = rect.bottom + 8;
+    if (top + estimatedHeight > window.innerHeight - 16) {
+      top = Math.max(16, rect.top - estimatedHeight - 8);
+    }
+    calendar.style.width = `${width}px`;
+    calendar.style.left = `${left}px`;
+    calendar.style.top = `${top}px`;
+    calendar.style.right = 'auto';
+    calendar.style.bottom = 'auto';
+  }
+
+  function parseDateInput(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    let y, m, d;
+    if (/^\d{8}$/.test(raw)) {
+      y = Number(raw.slice(0, 4));
+      m = Number(raw.slice(4, 6));
+      d = Number(raw.slice(6, 8));
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      [y, m, d] = raw.split("-").map(Number);
+    } else {
+      return null;
+    }
+    if (y < 1900 || y > 2500 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    const date = new Date(y, m - 1, d);
+    if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+    return `${y}-${pad(m)}-${pad(d)}`;
+  }
+
+  function renderModernCalendar(root, viewDate) {
+    const hidden = root.querySelector('[data-date-value]');
+    const calendar = root.querySelector('[data-calendar]');
+    if (!hidden || !calendar) return;
+    const selected = dateFromIso(hidden.value);
+    const today = new Date();
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const startDay = first.getDay();
+    const days = last.getDate();
+    const prevLast = new Date(year, month, 0).getDate();
+    const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
+    const cells = [];
+    for (let i = startDay - 1; i >= 0; i -= 1) {
+      const date = new Date(year, month - 1, prevLast - i);
+      cells.push({ date, muted: true });
+    }
+    for (let day = 1; day <= days; day += 1) cells.push({ date: new Date(year, month, day), muted: false });
+    let nextDay = 1;
+    while (cells.length < 42) cells.push({ date: new Date(year, month + 1, nextDay++), muted: true });
+
+    calendar.dataset.year = year;
+    calendar.dataset.month = month;
+    const yearOptions = Array.from({ length: 601 }, (_, i) => 1900 + i)
+      .map(value => `<option value="${value}"${value === year ? " selected" : ""}>${value}년</option>`).join("");
+    const monthOptions = Array.from({ length: 12 }, (_, i) => `<option value="${i}"${i === month ? " selected" : ""}>${i + 1}월</option>`).join("");
+    calendar.innerHTML = `
+      <div class="modern-calendar-head">
+        <button type="button" class="calendar-nav" data-cal-prev aria-label="이전 달">‹</button>
+        <div class="calendar-jump" aria-label="연도와 월 선택">
+          <select class="calendar-year-control" data-cal-year aria-label="연도">${yearOptions}</select>
+          <select class="calendar-month-control" data-cal-month aria-label="월">${monthOptions}</select>
+        </div>
+        <button type="button" class="calendar-nav" data-cal-next aria-label="다음 달">›</button>
+      </div>
+      <div class="calendar-weekdays">${weekDays.map((day, index) => `<span class="${index === 0 ? "is-sunday" : index === 6 ? "is-saturday" : ""}">${day}</span>`).join("")}</div>
+      <div class="calendar-days">
+        ${cells.map(({ date, muted }) => {
+          const iso = isoFromDate(date);
+          const isSelected = selected && iso === isoFromDate(selected);
+          const isToday = iso === isoFromDate(today);
+          const dow = date.getDay();
+          const weekendClass = dow === 0 ? " is-sunday" : dow === 6 ? " is-saturday" : "";
+          return `<button type="button" class="calendar-day${weekendClass}${muted ? " is-muted" : ""}${isSelected ? " is-selected" : ""}${isToday ? " is-today" : ""}" data-cal-date="${iso}" aria-label="${date.getFullYear()}년 ${date.getMonth()+1}월 ${date.getDate()}일">${date.getDate()}</button>`;
+        }).join("")}
+      </div>
+      <div class="modern-calendar-foot">
+        <button type="button" class="calendar-text-btn" data-cal-clear>지우기</button>
+        <button type="button" class="calendar-today-btn" data-cal-today>오늘</button>
+      </div>`;
+  }
+
+  function syncDatePicker(root) {
+    const hidden = root.querySelector('[data-date-value]');
+    const input = root.querySelector('[data-date-input]');
+    if (hidden && input && document.activeElement !== input) input.value = hidden.value || "";
+    root.classList.toggle("has-value", Boolean(hidden?.value));
+    root.classList.remove("has-date-error");
+  }
+
+  function closeAllDatePickers(except = null) {
+    qsa('[data-date-picker]').forEach(root => {
+      if (root === except) return;
+      const calendar = root.querySelector('[data-calendar]');
+      const trigger = root.querySelector('[data-date-trigger]');
+      if (calendar) calendar.hidden = true;
+      if (trigger) trigger.setAttribute("aria-expanded", "false");
+      root.classList.remove("is-open");
+    });
+  }
+
+  function initCourseDatePickers() {
+    qsa('[data-date-picker]').forEach(root => {
+      if (root.dataset.ready === "1") return;
+      root.dataset.ready = "1";
+      const hidden = root.querySelector('[data-date-value]');
+      const input = root.querySelector('[data-date-input]');
+      const trigger = root.querySelector('[data-date-trigger]');
+      const calendar = root.querySelector('[data-calendar]');
+      if (!hidden || !input || !trigger || !calendar) return;
+
+      const openCalendar = () => {
+        closeAllDatePickers(root);
+        const selected = dateFromIso(hidden.value) || dateFromIso(parseDateInput(input.value)) || new Date();
+        renderModernCalendar(root, new Date(selected.getFullYear(), selected.getMonth(), 1));
+        calendar.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        root.classList.add("is-open");
+        positionModernCalendar(root);
+      };
+
+      trigger.addEventListener("click", () => {
+        if (calendar.hidden) openCalendar();
+        else {
+          calendar.hidden = true;
+          trigger.setAttribute("aria-expanded", "false");
+          root.classList.remove("is-open");
+        }
+      });
+
+      const commitTypedDate = (showMessage = true) => {
+        const parsed = parseDateInput(input.value);
+        if (parsed === null) {
+          root.classList.add("has-date-error");
+          if (showMessage && root.dataset.messageOpen !== "1") {
+            root.dataset.messageOpen = "1";
+            showAdminMessage(
+              "날짜 형식을 확인해주세요",
+              "날짜는 20250901처럼 8자리 숫자로 입력해주세요. 입력 후 2025-09-01 형식으로 자동 변환됩니다.",
+              () => {
+                root.dataset.messageOpen = "0";
+                input.focus();
+                input.select();
+              }
+            );
+          }
+          return false;
+        }
+        root.classList.remove("has-date-error");
+        hidden.value = parsed || "";
+        input.value = parsed || "";
+        hidden.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
+      };
+      input.addEventListener("input", () => {
+        const raw = input.value.trim();
+        if (/^\d{8}$/.test(raw)) {
+          const parsed = parseDateInput(raw);
+          if (parsed) {
+            root.classList.remove("has-date-error");
+            hidden.value = parsed;
+            input.value = parsed;
+            hidden.dispatchEvent(new Event("change", { bubbles: true }));
+            if (!calendar.hidden) {
+              const date = dateFromIso(parsed);
+              renderModernCalendar(root, new Date(date.getFullYear(), date.getMonth(), 1));
+              positionModernCalendar(root);
+            }
+          }
+        } else {
+          root.classList.remove("has-date-error");
+        }
+      });
+      input.addEventListener("change", () => commitTypedDate(true));
+      input.addEventListener("blur", () => {
+        if (!input.value.trim() || /^\d{4}-\d{2}-\d{2}$/.test(input.value.trim())) return;
+        commitTypedDate(true);
+      });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (commitTypedDate(true)) input.blur();
+        }
+        if (event.key === "ArrowDown" && event.altKey) {
+          event.preventDefault();
+          openCalendar();
+        }
+      });
+
+      calendar.addEventListener("change", (event) => {
+        const yearInput = event.target.closest('[data-cal-year]');
+        const monthSelect = event.target.closest('[data-cal-month]');
+        if (!yearInput && !monthSelect) return;
+        let year = Number((calendar.querySelector('[data-cal-year]') || {}).value || calendar.dataset.year);
+        let month = Number((calendar.querySelector('[data-cal-month]') || {}).value ?? calendar.dataset.month);
+        year = Math.max(1900, Math.min(2500, year || new Date().getFullYear()));
+        month = Math.max(0, Math.min(11, month));
+        renderModernCalendar(root, new Date(year, month, 1));
+        positionModernCalendar(root);
+      });
+
+      calendar.addEventListener("click", (event) => {
+        const prev = event.target.closest('[data-cal-prev]');
+        const next = event.target.closest('[data-cal-next]');
+        const dateButton = event.target.closest('[data-cal-date]');
+        const todayButton = event.target.closest('[data-cal-today]');
+        const clearButton = event.target.closest('[data-cal-clear]');
+        const year = Number(calendar.dataset.year || new Date().getFullYear());
+        const month = Number(calendar.dataset.month || new Date().getMonth());
+        if (prev || next) {
+          renderModernCalendar(root, new Date(year, month + (next ? 1 : -1), 1));
+          return;
+        }
+        if (todayButton) hidden.value = isoFromDate(new Date());
+        if (clearButton) hidden.value = "";
+        if (dateButton) hidden.value = dateButton.dataset.calDate || "";
+        if (dateButton || todayButton || clearButton) {
+          input.value = hidden.value;
+          syncDatePicker(root);
+          calendar.hidden = true;
+          trigger.setAttribute("aria-expanded", "false");
+          root.classList.remove("is-open");
+          hidden.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
+
+      syncDatePicker(root);
+    });
+
+    if (!document.documentElement.dataset.datePickerGlobalBound) {
+      document.documentElement.dataset.datePickerGlobalBound = "1";
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest('[data-date-picker]')) closeAllDatePickers();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeAllDatePickers();
+      });
+      window.addEventListener("resize", () => {
+        qsa('[data-date-picker].is-open').forEach(positionModernCalendar);
+      });
+      document.addEventListener("scroll", () => {
+        qsa('[data-date-picker].is-open').forEach(positionModernCalendar);
+      }, true);
+    }
+  }
+
+  function hydrateCourseDates(course, form) {
+    initCourseDatePickers();
+    let startDate = course.startDate || "";
+    let endDate = course.endDate || "";
+    if (!startDate && !endDate && course.period) {
+      const legacy = parseLegacyCoursePeriod(course.period);
+      startDate = legacy.startDate;
+      endDate = legacy.endDate;
+    }
+    const startInput = form.elements.namedItem("startDate");
+    const endInput = form.elements.namedItem("endDate");
+    const periodInput = form.elements.namedItem("period");
+    if (startInput) startInput.value = startDate;
+    if (endInput) endInput.value = endDate;
+    if (periodInput) periodInput.value = course.period || "";
+    qsa('[data-date-picker]', form).forEach(syncDatePicker);
+  }
+
   function openCourseModal(id = null) {
     const modal = qs("#courseModal");
     const form = qs("#courseForm");
@@ -411,6 +930,7 @@
       const field = form.elements.namedItem(key);
       if (field) field.value = key === "published" ? String(value !== false) : (value ?? "");
     });
+    hydrateCourseDates(course, form);
 
     renderCourseRepeaters(course);
     const preview = qs("#coursePreviewBtn");
@@ -423,6 +943,7 @@
   }
 
   function closeCourseModal() {
+    closeAllDatePickers();
     qs("#courseModal")?.classList.remove("open");
   }
 
@@ -431,9 +952,11 @@
     let id = Number(data.id || 0);
     const isEdit = Boolean(id);
     const repeaters = collectCourseRepeaters();
+    const existingCourse = isEdit ? db.courses.find(x => Number(x.id) === id) : null;
     const payload = {
       ...data,
       ...repeaters,
+      period: formatCoursePeriod(data.startDate, data.endDate, data.period || existingCourse?.period || ""),
       id: id || nextId(db.courses),
       published: data.published !== "false",
       lead: data.lead?.trim() || data.description?.trim() || "",
@@ -479,10 +1002,13 @@
   function renderSimpleTable(config) {
     const body = qs(config.body);
     if (!body) return;
-    const list = db[config.key];
+    const list = Array.isArray(config.list) ? config.list : db[config.key];
+    const page = getPageSlice(config.key, list, 8);
 
-    body.innerHTML = list.map(item => config.row(item)).join("") ||
+    body.innerHTML = page.items.map(item => config.row(item)).join("") ||
       `<tr><td colspan="${config.colspan}"><div class="empty-state">등록된 데이터가 없습니다.</div></td></tr>`;
+    decorateResponsiveTables();
+    renderPagination(config.key, list.length, 8, body, config.rerender || (() => {}));
   }
 
   function bindGenericCrud({
@@ -565,10 +1091,15 @@
   }
 
   function renderNotices() {
+    const keyword = (qs("#noticeSearch")?.value || "").trim().toLowerCase();
+    const status = qs("#noticeStatusFilter")?.value || "";
+    const list = db.notices.filter(n => {
+      const matchStatus = !status || n.status === status;
+      const matchKeyword = !keyword || `${n.title || ""} ${n.content || ""}`.toLowerCase().includes(keyword);
+      return matchStatus && matchKeyword;
+    });
     renderSimpleTable({
-      body: "#noticeTableBody",
-      key: "notices",
-      colspan: 6,
+      body: "#noticeTableBody", key: "notices", list, rerender: renderNotices, colspan: 6,
       row: n => `
         <tr>
           <td>${n.id}</td>
@@ -585,10 +1116,17 @@
   }
 
   function renderJobs() {
+    const keyword = (qs("#jobSearch")?.value || "").trim().toLowerCase();
+    const category = (qs("#jobCategoryFilter")?.value || "").trim().toLowerCase();
+    const status = qs("#jobStatusFilter")?.value || "";
+    const list = db.jobs.filter(j => {
+      const matchStatus = !status || (j.status || "게시") === status;
+      const matchCategory = !category || (j.category || "").toLowerCase().includes(category);
+      const matchKeyword = !keyword || `${j.title || ""} ${j.company || ""}`.toLowerCase().includes(keyword);
+      return matchStatus && matchCategory && matchKeyword;
+    });
     renderSimpleTable({
-      body: "#jobTableBody",
-      key: "jobs",
-      colspan: 6,
+      body: "#jobTableBody", key: "jobs", list, rerender: renderJobs, colspan: 6,
       row: j => `
         <tr>
           <td>${j.id}</td><td>${escapeHtml(j.category)}</td>
@@ -604,10 +1142,15 @@
   }
 
   function renderHistory() {
+    const keyword = (qs("#historySearch")?.value || "").trim().toLowerCase();
+    const year = (qs("#historyYearFilter")?.value || "").trim().toLowerCase();
+    const list = db.history.filter(h => {
+      const matchYear = !year || String(h.year || "").toLowerCase().includes(year);
+      const matchKeyword = !keyword || `${h.tag || ""} ${h.title || ""} ${h.description || ""}`.toLowerCase().includes(keyword);
+      return matchYear && matchKeyword;
+    });
     renderSimpleTable({
-      body: "#historyTableBody",
-      key: "history",
-      colspan: 5,
+      body: "#historyTableBody", key: "history", list, rerender: renderHistory, colspan: 5,
       row: h => `
         <tr>
           <td>${h.id}</td><td><strong>${escapeHtml(h.year)}</strong></td>
@@ -620,39 +1163,133 @@
     });
   }
 
+  function inquiryNotePreview(note) {
+    const text = String(note || "").trim();
+    if (!text) return `<span class="note-empty">아직 상담 기록이 없습니다.</span>`;
+    const compact = text.replace(/\s+/g, " ");
+    const preview = compact.length > 54 ? `${compact.slice(0, 54)}…` : compact;
+    return `<span class="note-preview-text">${escapeHtml(preview)}</span>`;
+  }
+
+  function setSelectStatusClass(select, status) {
+    if (!select) return;
+    select.classList.remove("status-select-wait", "status-select-progress", "status-select-complete", "status-select-cancel");
+    const map = {
+      "대기": "status-select-wait",
+      "상담중": "status-select-progress",
+      "완료": "status-select-complete",
+      "취소": "status-select-cancel"
+    };
+    select.classList.add(map[status] || "status-select-wait");
+  }
+
+  function openConsultationModal(id) {
+    const item = db.inquiries.find(x => Number(x.id) === Number(id));
+    const modal = qs("#consultationModal");
+    if (!item || !modal) return;
+
+    qs("#consultationInquiryId").value = item.id;
+    qs("#consultationModalTitle").textContent = `${item.name || "신청자"} 상담 상세`;
+    const createdAtText = String(item.createdAt || "-").trim();
+    const createdAtParts = createdAtText.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::\d{2})?/);
+    const createdAtMarkup = createdAtParts
+      ? `<span class="consult-date">${escapeHtml(createdAtParts[1])}</span><span class="consult-time">${escapeHtml(createdAtParts[2])}</span>`
+      : escapeHtml(createdAtText);
+    qs("#consultationSummary").innerHTML = `
+      <div class="consult-info-cell"><span>신청자</span><strong>${escapeHtml(item.name || "-")}</strong></div>
+      <div class="consult-info-cell"><span>연락처</span><strong>${escapeHtml(item.phone || "-")}</strong></div>
+      <div class="consult-info-cell"><span>관심과정</span><strong>${escapeHtml(item.course || "-")}</strong></div>
+      <div class="consult-info-cell"><span>신청일시</span><strong class="consult-datetime">${createdAtMarkup}</strong></div>
+    `;
+    qs("#consultationMessage").textContent = item.message || "작성된 문의내용이 없습니다.";
+    qs("#consultationNoteField").value = item.consultationNote || "";
+    qsa('input[name="consultationStatus"]').forEach(radio => {
+      radio.checked = radio.value === (item.status || "대기");
+    });
+    qs("#consultationStatusBadge").innerHTML = inquiryStatusBadge(item.status || "대기");
+    updateConsultationNoteCount();
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    setTimeout(() => qs("#consultationNoteField")?.focus(), 30);
+  }
+
+  function closeConsultationModal() {
+    const modal = qs("#consultationModal");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+
+  function updateConsultationNoteCount() {
+    const field = qs("#consultationNoteField");
+    const count = qs("#consultationNoteCount");
+    if (field && count) count.textContent = `${field.value.length} / 2000`;
+  }
+
   function renderInquiries() {
     const body = qs("#inquiryTableBody");
     if (!body) return;
 
-    body.innerHTML = db.inquiries.map(i => `
+    const keyword = (qs("#inquirySearch")?.value || "").trim().toLowerCase();
+    const statusFilter = qs("#inquiryStatusFilter")?.value || "";
+    const list = db.inquiries.filter(i => {
+      const matchStatus = !statusFilter || i.status === statusFilter;
+      const matchKeyword = !keyword || `${i.name || ""} ${i.phone || ""} ${i.course || ""} ${i.message || ""} ${i.consultationNote || ""}`.toLowerCase().includes(keyword);
+      return matchStatus && matchKeyword;
+    });
+    const page = getPageSlice("inquiries", list, 8);
+
+    body.innerHTML = page.items.map(i => `
       <tr>
         <td>${i.id}</td>
         <td><strong>${escapeHtml(i.name)}</strong><br><small>${escapeHtml(i.phone)}</small></td>
         <td>${escapeHtml(i.course)}</td>
-        <td>${escapeHtml(i.message || "")}</td>
-        <td>${escapeHtml(i.createdAt || "")}</td>
+        <td><div class="inquiry-message-preview">${escapeHtml(i.message || "작성된 문의내용이 없습니다.")}</div></td>
         <td>
-          <select data-inquiry-status="${i.id}">
-            <option ${i.status === "대기" ? "selected" : ""}>대기</option>
-            <option ${i.status === "상담중" ? "selected" : ""}>상담중</option>
-            <option ${i.status === "완료" ? "selected" : ""}>완료</option>
-          </select>
+          <div class="consultation-note-summary">
+            ${inquiryNotePreview(i.consultationNote)}
+            <button class="btn btn-outline btn-consultation-open" type="button" data-open-consultation="${i.id}">
+              <span>상담 기록</span><span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </td>
+        <td>${escapeHtml(i.createdAt || "")}</td>
+        <td class="inquiry-current-status">
+          <div class="inquiry-current-status-inner">${inquiryStatusBadge(i.status)}</div>
+        </td>
+        <td class="inquiry-status-change">
+          <div class="inquiry-status-change-inner">
+            <select class="status-select" data-inquiry-status="${i.id}" aria-label="${escapeHtml(i.name)} 상담 상태 변경">
+              <option ${i.status === "대기" ? "selected" : ""}>대기</option>
+              <option ${i.status === "상담중" ? "selected" : ""}>상담중</option>
+              <option ${i.status === "완료" ? "selected" : ""}>완료</option>
+              <option ${i.status === "취소" ? "selected" : ""}>취소</option>
+            </select>
+          </div>
         </td>
       </tr>
-    `).join("") || `<tr><td colspan="6"><div class="empty-state">상담신청이 없습니다.</div></td></tr>`;
+    `).join("") || `<tr><td colspan="8"><div class="empty-state">검색 조건에 맞는 상담신청이 없습니다.</div></td></tr>`;
+
+    decorateResponsiveTables();
+    renderPagination("inquiries", list.length, 8, body, renderInquiries);
+
+    qsa("[data-open-consultation]").forEach(button => {
+      button.addEventListener("click", () => openConsultationModal(Number(button.dataset.openConsultation)));
+    });
 
     qsa("[data-inquiry-status]").forEach(select => {
+      setSelectStatusClass(select, select.value);
       select.addEventListener("change", () => {
         const item = db.inquiries.find(x => Number(x.id) === Number(select.dataset.inquiryStatus));
         if (!item) return;
         item.status = select.value;
-
-        /*
-         * [DB/API 연동 지점]
-         * PUT /api/admin/inquiries/:id/status
-         */
         saveDB(db);
+        setSelectStatusClass(select, select.value);
         updateDashboardStats();
+        renderInquiries();
+        renderDashboardRecent();
         toast("상담 상태를 변경했습니다.");
       });
     });
@@ -683,9 +1320,64 @@
   renderJobs();
   renderHistory();
   renderInquiries();
+  decorateResponsiveTables();
 
-  qs("#courseSearch")?.addEventListener("input", renderCourses);
-  qs("#courseTypeFilter")?.addEventListener("change", renderCourses);
+  qs("#consultationModalClose")?.addEventListener("click", closeConsultationModal);
+  qs("#consultationCancelBtn")?.addEventListener("click", closeConsultationModal);
+  qs("#consultationNoteField")?.addEventListener("input", updateConsultationNoteCount);
+  qs("#consultationModal")?.addEventListener("click", (event) => {
+    if (event.target === event.currentTarget) closeConsultationModal();
+  });
+  qsa('input[name="consultationStatus"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.checked) qs("#consultationStatusBadge").innerHTML = inquiryStatusBadge(radio.value);
+    });
+  });
+  qs("#consultationForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const id = Number(qs("#consultationInquiryId")?.value || 0);
+    const item = db.inquiries.find(x => Number(x.id) === id);
+    if (!item) return;
+    const checked = qs('input[name="consultationStatus"]:checked');
+    item.status = checked?.value || item.status || "대기";
+    item.consultationNote = (qs("#consultationNoteField")?.value || "").trim();
+    saveDB(db);
+    updateDashboardStats();
+    renderInquiries();
+    renderDashboardRecent();
+    closeConsultationModal();
+    toast("상담 기록을 저장했습니다.");
+  });
+
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeConsultationModal(); });
+
+  const bindFilter = (selector, eventName, key, render) => {
+    qs(selector)?.addEventListener(eventName, () => { resetPage(key); render(); });
+  };
+  bindFilter("#courseSearch", "input", "courses", renderCourses);
+  bindFilter("#courseTypeFilter", "change", "courses", renderCourses);
+  bindFilter("#courseStatusFilter", "change", "courses", renderCourses);
+  bindFilter("#coursePublishFilter", "change", "courses", renderCourses);
+  bindFilter("#noticeSearch", "input", "notices", renderNotices);
+  bindFilter("#noticeStatusFilter", "change", "notices", renderNotices);
+  bindFilter("#jobSearch", "input", "jobs", renderJobs);
+  bindFilter("#jobCategoryFilter", "input", "jobs", renderJobs);
+  bindFilter("#jobStatusFilter", "change", "jobs", renderJobs);
+  bindFilter("#historySearch", "input", "history", renderHistory);
+  bindFilter("#historyYearFilter", "input", "history", renderHistory);
+  bindFilter("#inquirySearch", "input", "inquiries", renderInquiries);
+  bindFilter("#inquiryStatusFilter", "change", "inquiries", renderInquiries);
+
+  qsa("[data-reset-filters]").forEach(button => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.resetFilters;
+      const panel = button.closest(".form-panel");
+      qsa("input[type=search], select", panel).forEach(control => { control.value = ""; });
+      resetPage(key);
+      ({ courses: renderCourses, notices: renderNotices, jobs: renderJobs, history: renderHistory, inquiries: renderInquiries })[key]?.();
+    });
+  });
+
   qs("#addCourseBtn")?.addEventListener("click", () => openCourseModal());
   qs("#courseModalClose")?.addEventListener("click", closeCourseModal);
   qs("#courseForm")?.addEventListener("submit", e => {
@@ -749,4 +1441,157 @@
       location.reload();
     });
   });
+})();
+
+
+/* v11.1 true custom select enhancement ---------------------------------- */
+(() => {
+  let active = null;
+  let uid = 0;
+
+  function closeActive(focusTrigger = false) {
+    if (!active) return;
+    active.wrapper.classList.remove('is-open');
+    active.menu.classList.remove('is-open');
+    active.trigger.setAttribute('aria-expanded', 'false');
+    if (focusTrigger) active.trigger.focus();
+    active = null;
+  }
+
+  function placeMenu(record) {
+    const rect = record.trigger.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const margin = 8;
+    const width = Math.max(rect.width, 150);
+    record.menu.style.width = `${Math.min(width, vw - margin * 2)}px`;
+    record.menu.style.left = `${Math.max(margin, Math.min(rect.left, vw - width - margin))}px`;
+    record.menu.style.top = `${rect.bottom + 6}px`;
+    record.menu.style.bottom = 'auto';
+
+    const menuRect = record.menu.getBoundingClientRect();
+    if (menuRect.bottom > vh - margin && rect.top > vh - rect.bottom) {
+      record.menu.style.top = 'auto';
+      record.menu.style.bottom = `${vh - rect.top + 6}px`;
+      record.menu.style.transformOrigin = 'bottom';
+    } else {
+      record.menu.style.transformOrigin = 'top';
+    }
+  }
+
+  function sync(record) {
+    const option = record.select.options[record.select.selectedIndex] || record.select.options[0];
+    record.value.textContent = option ? option.textContent : '';
+    [...record.menu.querySelectorAll('.custom-select-option')].forEach((btn, index) => {
+      btn.setAttribute('aria-selected', String(index === record.select.selectedIndex));
+    });
+  }
+
+  function open(record) {
+    if (active && active !== record) closeActive();
+    active = record;
+    record.wrapper.classList.add('is-open');
+    record.menu.classList.add('is-open');
+    record.trigger.setAttribute('aria-expanded', 'true');
+    placeMenu(record);
+    const selected = record.menu.querySelector('[aria-selected="true"]');
+    selected?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function enhance(select) {
+    if (!select || select.dataset.customSelectReady === '1' || select.multiple || select.size > 1) return;
+    select.dataset.customSelectReady = '1';
+    select.classList.add('custom-select-source');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select';
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-select-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-label', select.getAttribute('aria-label') || '선택');
+    const value = document.createElement('span');
+    value.className = 'custom-select-value';
+    trigger.appendChild(value);
+
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+    wrapper.appendChild(trigger);
+
+    const menu = document.createElement('div');
+    menu.className = 'custom-select-menu';
+    menu.id = `custom-select-menu-${++uid}`;
+    menu.setAttribute('role', 'listbox');
+    trigger.setAttribute('aria-controls', menu.id);
+    document.body.appendChild(menu);
+
+    [...select.options].forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'custom-select-option';
+      btn.setAttribute('role', 'option');
+      btn.dataset.index = String(index);
+      btn.textContent = opt.textContent;
+      btn.disabled = opt.disabled;
+      btn.addEventListener('click', () => {
+        if (select.selectedIndex !== index) {
+          select.selectedIndex = index;
+          select.dispatchEvent(new Event('input', { bubbles: true }));
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        sync(record);
+        closeActive(true);
+      });
+      menu.appendChild(btn);
+    });
+
+    const record = { select, wrapper, trigger, value, menu };
+    sync(record);
+
+    trigger.addEventListener('click', () => active === record ? closeActive() : open(record));
+    trigger.addEventListener('keydown', (event) => {
+      const count = select.options.length;
+      if (event.key === 'Escape') { event.preventDefault(); closeActive(true); return; }
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); active === record ? closeActive() : open(record); return; }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const dir = event.key === 'ArrowDown' ? 1 : -1;
+        let next = Math.max(0, Math.min(count - 1, select.selectedIndex + dir));
+        while (select.options[next]?.disabled && next >= 0 && next < count) next += dir;
+        if (next >= 0 && next < count) {
+          select.selectedIndex = next;
+          select.dispatchEvent(new Event('input', { bubbles: true }));
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          sync(record);
+        }
+      }
+    });
+    select.addEventListener('change', () => sync(record));
+  }
+
+  function enhanceAll(root = document) {
+    root.querySelectorAll?.('select').forEach(enhance);
+  }
+
+  enhanceAll();
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (node.matches('select')) enhance(node);
+        enhanceAll(node);
+      });
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener('pointerdown', (event) => {
+    if (!active) return;
+    if (active.wrapper.contains(event.target) || active.menu.contains(event.target)) return;
+    closeActive();
+  });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeActive(true); });
+  window.addEventListener('resize', () => { if (active) placeMenu(active); });
+  window.addEventListener('scroll', () => { if (active) placeMenu(active); }, true);
 })();

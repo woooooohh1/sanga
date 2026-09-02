@@ -8,7 +8,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=12.6">
+  <script src="auth.js"></script>
 </head>
 <body>
 <div class="admin-shell">
@@ -43,6 +44,7 @@
       <div class="admin-user">
         <div class="admin-user-avatar">관</div>
         <div><strong>관리자</strong><small>Administrator</small></div>
+        <button class="admin-logout-btn" type="button" data-admin-logout>로그아웃</button>
       </div>
     </header>
 
@@ -54,14 +56,26 @@
 </section>
 
 <div class="admin-card form-panel">
-  <div class="toolbar">
-    <select id="courseTypeFilter">
+  <div class="toolbar search-toolbar">
+    <select id="courseTypeFilter" aria-label="과정 구분">
       <option value="">전체 구분</option>
       <option value="unemployed">실업자 내일배움카드</option>
       <option value="worker">재직자 국비과정</option>
       <option value="general">일반과정</option>
     </select>
-    <input id="courseSearch" type="search" placeholder="과정명/분야 검색">
+    <select id="courseStatusFilter" aria-label="모집 상태">
+      <option value="">전체 상태</option>
+      <option value="모집중">모집중</option>
+      <option value="마감">마감</option>
+      <option value="준비중">준비중</option>
+    </select>
+    <select id="coursePublishFilter" aria-label="공개 상태">
+      <option value="">전체 공개여부</option>
+      <option value="published">공개</option>
+      <option value="hidden">비공개</option>
+    </select>
+    <input id="courseSearch" type="search" placeholder="과정명 · 분야 · 설명 검색" aria-label="과정 검색">
+    <button class="btn btn-outline filter-reset" type="button" data-reset-filters="courses">초기화</button>
   </div>
 
   <!--
@@ -98,7 +112,40 @@
           <div class="form-field full"><label>과정명</label><input name="title" required placeholder="과정명을 입력하세요"></div>
           <div class="form-field"><label>모집 상태</label><select name="status"><option>모집중</option><option>상시접수</option><option>마감</option></select></div>
           <div class="form-field"><label>홈페이지 공개</label><select name="published"><option value="true">공개</option><option value="false">비공개</option></select><div class="form-help">비공개 시 과정 목록과 상세페이지에서 숨겨집니다.</div></div>
-          <div class="form-field"><label>교육기간</label><input name="period" placeholder="예: 09.07 ~ 10.16"></div>
+          <div class="form-field full course-date-field">
+            <label>교육기간</label>
+            <input type="hidden" name="period" id="coursePeriodLegacy">
+            <div class="course-date-range">
+              <div class="course-date-item">
+                <span class="course-date-caption">시작일</span>
+                <div class="modern-date-picker" data-date-picker>
+                  <input type="hidden" name="startDate" data-date-value>
+                  <div class="modern-date-input-wrap">
+                    <input class="modern-date-input" type="text" inputmode="numeric" autocomplete="off" data-date-input placeholder="예: 20250901" aria-label="교육 시작일">
+                    <button class="modern-date-trigger" type="button" data-date-trigger aria-label="시작일 달력 열기" aria-haspopup="dialog" aria-expanded="false">
+                      <span class="modern-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M7 3v3M17 3v3M4.5 9h15M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    </button>
+                  </div>
+                  <div class="modern-calendar" data-calendar hidden></div>
+                </div>
+              </div>
+              <div class="course-date-separator" aria-hidden="true">→</div>
+              <div class="course-date-item">
+                <span class="course-date-caption">종료일</span>
+                <div class="modern-date-picker" data-date-picker>
+                  <input type="hidden" name="endDate" data-date-value>
+                  <div class="modern-date-input-wrap">
+                    <input class="modern-date-input" type="text" inputmode="numeric" autocomplete="off" data-date-input placeholder="예: 20250901" aria-label="교육 종료일">
+                    <button class="modern-date-trigger" type="button" data-date-trigger aria-label="종료일 달력 열기" aria-haspopup="dialog" aria-expanded="false">
+                      <span class="modern-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M7 3v3M17 3v3M4.5 9h15M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    </button>
+                  </div>
+                  <div class="modern-calendar" data-calendar hidden></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-help course-date-help">날짜는 달력에서 선택하거나 20250901처럼 8자리로 입력할 수 있습니다.</div>
+          </div>
           <div class="form-field"><label>교육시간</label><input name="time" placeholder="예: 09:00 ~ 13:00"></div>
           <div class="form-field"><label>수강료</label><input name="tuition" placeholder="예: 480,000원"></div>
           <div class="form-field"><label>지원구분</label><input name="support" placeholder="예: 자비부담 216,000원"></div>
@@ -164,6 +211,6 @@
 
 <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
 <script src="../assets/course-details.js"></script>
-<script src="admin.js"></script>
+<script src="admin.js?v=12.4"></script>
 </body>
 </html>

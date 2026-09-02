@@ -8,7 +8,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=12.6">
+  <script src="auth.js"></script>
 </head>
 <body>
 <div class="admin-shell">
@@ -43,6 +44,7 @@
       <div class="admin-user">
         <div class="admin-user-avatar">관</div>
         <div><strong>관리자</strong><small>Administrator</small></div>
+        <button class="admin-logout-btn" type="button" data-admin-logout>로그아웃</button>
       </div>
     </header>
 
@@ -54,6 +56,15 @@
 </section>
 
 <div class="admin-card form-panel">
+  <div class="toolbar search-toolbar">
+    <select id="noticeStatusFilter" aria-label="공지 상태">
+      <option value="">전체 상태</option>
+      <option value="게시">게시</option>
+      <option value="임시저장">임시저장</option>
+    </select>
+    <input id="noticeSearch" type="search" placeholder="공지 제목 · 내용 검색" aria-label="공지 검색">
+    <button class="btn btn-outline filter-reset" type="button" data-reset-filters="notices">초기화</button>
+  </div>
   <!-- [DB/API 연동 지점] GET /api/admin/notices -->
   <div class="table-wrap">
     <table class="admin-table">
@@ -85,6 +96,6 @@
 </div>
 
 <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
-<script src="admin.js"></script>
+<script src="admin.js?v=12.4"></script>
 </body>
 </html>

@@ -113,10 +113,34 @@
        *   body: JSON.stringify(payload)
        * });
        */
+      const payload = Object.fromEntries(new FormData(form).entries());
+      const DB_KEY = "sanga_admin_demo_v2";
+      try {
+        const saved = localStorage.getItem(DB_KEY);
+        const db = saved ? JSON.parse(saved) : { inquiries: [] };
+        if (!Array.isArray(db.inquiries)) db.inquiries = [];
+        const nextId = db.inquiries.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        db.inquiries.unshift({
+          id: nextId,
+          name: String(payload.name || "").trim(),
+          phone: String(payload.phone || "").trim(),
+          course: String(payload.course || "상담 과정 미지정").trim(),
+          message: String(payload.message || "").trim(),
+          consultationNote: "",
+          status: "대기",
+          createdAt: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+        });
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (error) {
+        console.warn("상담신청 데모 저장 실패", error);
+      }
+
       closeModal();
 
       if (toast) {
-        toast.textContent = "임시 저장되었습니다. 운영 시 상담 API와 연결해주세요.";
+        toast.textContent = "상담 신청이 접수되었습니다.";
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2400);
       }

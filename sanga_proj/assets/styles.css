@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
 :root {
   --brand: #f15a24;
   --brand-dark: #d94a15;
@@ -2827,4 +2829,9 @@ body {
   text-align: center;
   font-size: 12px;
   font-weight: 800;
+}
+
+/* v11.7 typography consistency */
+html, body, button, input, select, textarea, table, th, td {
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
 }
