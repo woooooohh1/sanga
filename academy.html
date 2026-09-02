@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="상아컴퓨터학원 리뉴얼 사이트">
+  <title>학원소개 | 상아컴퓨터학원</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="topbar">
+    <div class="container">
+      <a href="index.html">HOME</a>
+      <a href="#">로그인</a>
+      <a href="#">회원가입</a>
+      <a href="#">사이트맵</a>
+      <a href="#">마이페이지</a>
+    </div>
+  </div>
+
+  <div class="container brand-row">
+    <a href="index.html" class="logo logo-premium" aria-label="상아컴퓨터학원 홈">
+      <span class="logo-symbol-wrap">
+        <img class="logo-symbol" src="assets/images/sanga-symbol-512.png" alt="">
+      </span>
+      <span class="logo-type">
+        <strong>상아컴퓨터학원</strong>
+        <span>정보올림피아드</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" aria-label="주요 메뉴">
+      <a class="active" href="academy.html">학원소개</a>
+<a  href="unemployed.html">실업자 내일배움카드</a>
+<a  href="worker.html">재직자 국비과정</a>
+<a  href="olympiad.html">정보올림피아드</a>
+<a  href="general.html">일반과정</a>
+<a  href="jobs.html">취업정보</a>
+<a  href="community.html">커뮤니티</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" type="button" data-open-inquiry>상담 신청</button>
+      <button class="mobile-menu-btn" type="button" id="mobileMenuBtn" aria-label="메뉴 열기" aria-expanded="false">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-box" data-reveal="scale">
+      <nav class="breadcrumb" aria-label="현재 위치">HOME › 학원소개</nav>
+      <h1>학원소개</h1>
+      <p>오래된 경험은 남기고, 배움의 방식은 계속 새롭게 바꿉니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container two-col">
+    <aside class="card side-nav" aria-label="학원소개 하위 메뉴">
+      <h3>학원소개</h3>
+      <a class="active" href="#about">학원소개</a>
+      <a href="#history">학원연혁</a>
+      <a href="#facility">교육환경</a>
+      <a href="#location">오시는 길</a>
+    </aside>
+
+    <div>
+      <section id="about" class="academy-intro-grid reveal-up">
+        <article class="card academy-story">
+          <div class="section-kicker">About Sang-A</div>
+          <h2 class="big-copy">오래 가르쳐왔지만,<br><em>배우는 방식은 늘 새롭게.</em></h2>
+          <p>상아컴퓨터학원은 자격증 취득, 취업 준비, 업무 역량 향상, 프로그래밍 학습 등 다양한 목표를 가진 수강생에게 단계별 교육을 제공합니다.</p>
+
+          <div class="stat-grid">
+            <div class="card stat-card"><span class="stat-value" data-count="39">0</span><span class="stat-label">교육 경험(년)</span></div>
+            <div class="card stat-card"><span class="stat-value" data-count="4">0</span><span class="stat-label">핵심 교육영역</span></div>
+            <div class="card stat-card"><span class="stat-value" data-count="2">0</span><span class="stat-label">국비지원 유형</span></div>
+            <div class="card stat-card"><span class="stat-value" data-count="100">0</span><span class="stat-label">실무 중심 (%)</span></div>
+          </div>
+        </article>
+
+        <div class="academy-values">
+          <article class="card value-card"><span class="value-no">01</span><b>수준에 맞는 교육</b><p>수강생의 출발점에 맞춰 학습 단계를 나눕니다.</p></article>
+          <article class="card value-card"><span class="value-no">02</span><b>직접 해보는 수업</b><p>설명에 그치지 않고 실습과 반복을 중심으로 운영합니다.</p></article>
+          <article class="card value-card"><span class="value-no">03</span><b>목표가 보이는 과정</b><p>자격증, 취업, 업무 활용 등 목적에 맞춘 학습 경로를 안내합니다.</p></article>
+        </div>
+      </section>
+
+      <section id="history" class="section" aria-labelledby="historyTitle">
+        <header class="section-head reveal-up">
+          <div>
+            <div class="section-kicker">History</div>
+            <h2 id="historyTitle">시간이 쌓인 만큼,<br>교육도 진화해왔습니다</h2>
+          </div>
+        </header>
+
+        <!--
+          [DB/API 연동 지점 - 학원연혁]
+          운영 시 GET /api/academy/history 결과를 year/tag/title/desc 구조로 받아
+          아래 article.history-node를 반복 렌더링하세요.
+        -->
+        <div class="history-stage" id="historyStage">
+          <div class="history-rail"><div class="history-rail-fill" id="historyRailFill"></div></div>
+          <article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">BEGIN</div>
+      <h3>상아컴퓨터학원 개원</h3>
+      <p>지역 수강생에게 컴퓨터 교육의 기회를 넓히며 첫걸음을 시작했습니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">1987</div></div>
+</article>
+<article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">GROWTH</div>
+      <h3>교육과정 체계 확대</h3>
+      <p>자격증과 실무 중심의 교육과정을 확장하고 운영 체계를 정비했습니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">1996</div></div>
+</article>
+<article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">PUBLIC TRAINING</div>
+      <h3>직업훈련 교육 확대</h3>
+      <p>취업과 직무능력 향상을 위한 국비지원 교육과정을 본격적으로 강화했습니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">2011</div></div>
+</article>
+<article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">QUALITY</div>
+      <h3>교육 품질 관리 강화</h3>
+      <p>과정별 실습과 평가 체계를 정비하고 수강생 중심의 학습관리를 강화했습니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">2014</div></div>
+</article>
+<article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">CAREER</div>
+      <h3>취업 연계 프로그램 확대</h3>
+      <p>수료 후 직무역량과 취업 준비를 연결하는 실무형 교육 운영을 확대했습니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">2015</div></div>
+</article>
+<article class="history-node">
+  <div class="history-card-wrap">
+    <div class="card history-card">
+      <div class="history-tag">NEXT</div>
+      <h3>배움의 다음을 설계합니다</h3>
+      <p>국비지원, OA, 회계·ERP, 자격증, 프로그래밍과 정보올림피아드까지 다양한 목표를 지원합니다.</p>
+    </div>
+  </div>
+  <div class="history-year-wrap"><div class="history-year">NOW</div></div>
+</article>
+        </div>
+      </section>
+
+      <section id="facility" class="section">
+        <header class="section-head reveal-up">
+          <div><div class="section-kicker">Learning environment</div><h2>집중하기 좋은 환경,<br>실습하기 좋은 수업</h2></div>
+        </header>
+        <div class="facility-showcase">
+          <article class="card facility-panel primary reveal-up"><h3>개인별 PC 기반 실습 수업</h3><p>실제 프로그램을 직접 다루며 익히는 방식으로 구성합니다.</p></article>
+          <article class="card facility-panel reveal-up"><h3>진도 + 실습 + 피드백</h3><p>진행상황을 확인하고 부족한 부분을 다시 연습할 수 있도록 구성합니다.</p></article>
+        </div>
+      </section>
+
+      <section id="location" class="section">
+        <header class="section-head reveal-up">
+          <div><div class="section-kicker">Location</div><h2>찾아오시는 길</h2><p>네이버 지도에서 <strong>상아컴퓨터회계학원</strong>으로 검색하세요.</p></div>
+        </header>
+
+        <div class="location-grid">
+          <article class="card location-info reveal-up">
+            <div class="section-kicker">Sang-A Computer Academy</div>
+            <h2>상아컴퓨터학원</h2>
+            <div class="location-address">인천광역시 계양구 경명대로 1124</div>
+            <p style="margin-top:6px;color:var(--muted)">명인프라자1 501호</p>
+            <div class="location-actions">
+              <a class="btn btn-naver" href="https://map.naver.com/p/search/%EC%83%81%EC%95%84%EC%BB%B4%ED%93%A8%ED%84%B0%ED%9A%8C%EA%B3%84%ED%95%99%EC%9B%90" target="_blank" rel="noopener"><span class="naver-n">N</span> 네이버지도에서 보기</a>
+              <button class="btn btn-sky" type="button" data-open-inquiry>방문 상담 신청</button>
+            </div>
+          </article>
+
+          <a class="card map-card naver-map-preview motion-card reveal-up"
+             href="https://map.naver.com/p/search/%EC%83%81%EC%95%84%EC%BB%B4%ED%93%A8%ED%84%B0%ED%9A%8C%EA%B3%84%ED%95%99%EC%9B%90"
+             target="_blank" rel="noopener" aria-label="네이버지도에서 상아컴퓨터회계학원 보기">
+            <div class="naver-map-toolbar"><span class="naver-brand"><b>N</b> NAVER 지도</span><span class="naver-searchbox">상아컴퓨터회계학원</span></div>
+            <div class="naver-map-canvas">
+              <div class="map-road road-one"></div><div class="map-road road-two"></div><div class="map-road road-three"></div>
+              <div class="map-block block-a"></div><div class="map-block block-b"></div><div class="map-block block-c"></div><div class="map-block block-d"></div>
+              <div class="naver-place-card"><div class="naver-pin">●</div><div><strong>상아컴퓨터회계학원</strong><span>인천광역시 계양구 경명대로 1124</span><small>명인프라자1 501호</small></div></div>
+              <div class="naver-map-cta">네이버 지도에서 정확한 위치 보기 →</div>
+            </div>
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<aside class="quick-dock" aria-label="빠른 메뉴">
+  <a href="community.html" class="quick-dock-item" aria-label="공지사항">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 13V9l12-4v12L4 13Z"></path><path d="M7 13l1 6h3l-1-5"></path><path d="M18 8c1 1 1 3 0 4"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>공지사항</strong><small>새 소식</small></span>
+  </a>
+
+  <a href="unemployed.html" class="quick-dock-item" aria-label="실업자 과정">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle><path d="M15.5 8.5 20 4"></path><path d="M16.5 4H20v3.5"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>실업자 과정</strong><small>국비지원</small></span>
+  </a>
+
+  <a href="worker.html" class="quick-dock-item" aria-label="재직자 과정">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="7" width="18" height="12" rx="2"></rect><path d="M9 7V5h6v2"></path><path d="M3 12h18"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>재직자 과정</strong><small>직무향상</small></span>
+  </a>
+
+  <a href="#contact" class="quick-dock-item" aria-label="상담 문의">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5Z"></path><path d="M8 9h8M8 12h5"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>상담문의</strong><small>빠른상담</small></span>
+  </a>
+</aside>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="logo logo-premium" style="margin-bottom:10px">
+        <span class="logo-symbol-wrap">
+          <img class="logo-symbol" src="assets/images/sanga-symbol-512.png" alt="">
+        </span>
+        <span class="logo-type">
+          <strong>상아컴퓨터학원</strong>
+          <span>정보올림피아드</span>
+        </span>
+      </div>
+      <address class="footer-copy" style="font-style:normal">
+        인천광역시 계양구 경명대로 1124 · 명인프라자1 501호<br>
+        대표전화 032-541-0131 · 이메일 sang-a-com@hanmail.net<br>
+        © SANGACOMPUTER ACADEMY. ALL RIGHTS RESERVED.
+      </address>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-outline" href="academy.html#location">오시는 길</a>
+      <button class="btn btn-sky" type="button" data-open-inquiry>상담 문의</button>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="inquiryModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="inquiryTitle">
+    <div class="modal-head">
+      <h3 id="inquiryTitle">상담 신청</h3>
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
+    </div>
+
+    <!--
+      [DB/API 연동 지점 - 상담신청]
+      실제 서비스에서는 action 또는 JS fetch를 이용해 상담 API와 연결합니다.
+      예: POST /api/inquiries
+    -->
+    <form class="form-grid" id="inquiryForm">
+      <label>이름<input name="name" required placeholder="홍길동"></label>
+      <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
+      <label>
+        관심과정
+        <select name="course">
+          <option>실업자 내일배움카드</option>
+          <option>재직자 국비과정</option>
+          <option>일반과정</option>
+          <option>정보올림피아드</option>
+        </select>
+      </label>
+      <label>문의내용<textarea name="message" placeholder="궁금한 내용을 남겨주세요."></textarea></label>
+      <button class="btn btn-primary" type="submit">상담 신청하기</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
