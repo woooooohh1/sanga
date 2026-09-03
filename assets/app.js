@@ -98,57 +98,36 @@
       if (e.target === modal) closeModal();
     });
 
-    form?.addEventListener("submit", (e) => {
+    form?.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      /*
-       * [DB/API 연동 지점 - 상담 신청]
-       * 실제 운영에서는 아래 임시 처리 대신 API 호출로 교체하세요.
-       *
-       * 예시:
-       * const payload = Object.fromEntries(new FormData(form).entries());
-       * const response = await fetch("/api/inquiries", {
-       *   method: "POST",
-       *   headers: { "Content-Type": "application/json" },
-       *   body: JSON.stringify(payload)
-       * });
-       */
+      const submit = form.querySelector('button[type="submit"]');
       const payload = Object.fromEntries(new FormData(form).entries());
-      const DB_KEY = "sanga_admin_demo_v2";
+      if (submit) submit.disabled = true;
       try {
-        const saved = localStorage.getItem(DB_KEY);
-        const db = saved ? JSON.parse(saved) : { inquiries: [] };
-        if (!Array.isArray(db.inquiries)) db.inquiries = [];
-        const nextId = db.inquiries.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
-        const now = new Date();
-        const pad = (n) => String(n).padStart(2, "0");
-        db.inquiries.unshift({
-          id: nextId,
-          name: String(payload.name || "").trim(),
-          phone: String(payload.phone || "").trim(),
-          course: String(payload.course || "상담 과정 미지정").trim(),
-          message: String(payload.message || "").trim(),
-          consultationNote: "",
-          status: "대기",
-          createdAt: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
-        });
-        localStorage.setItem(DB_KEY, JSON.stringify(db));
+        if (!window.SangaPublicData?.submitInquiry) throw new Error("상담 API 연결정보를 확인해 주세요.");
+        await window.SangaPublicData.submitInquiry(payload);
+        closeModal();
+        if (toast) {
+          toast.textContent = "상담 신청이 접수되었습니다.";
+          toast.classList.add("show");
+          setTimeout(() => toast.classList.remove("show"), 2400);
+        }
+        form.reset();
       } catch (error) {
-        console.warn("상담신청 데모 저장 실패", error);
+        console.error("상담신청 저장 실패", error);
+        if (toast) {
+          toast.textContent = error?.message || "상담 신청 중 오류가 발생했습니다.";
+          toast.classList.add("show");
+          setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+      } finally {
+        if (submit) submit.disabled = false;
       }
-
-      closeModal();
-
-      if (toast) {
-        toast.textContent = "상담 신청이 접수되었습니다.";
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2400);
-      }
-      form.reset();
     });
   }
 
-  function initCourseFilter() {
+    function initCourseFilter() {
+    if (window.SangaPublicData) return;
     const list = qs("#courseList");
     const search = qs("#courseSearch");
     const category = qs("#categoryFilter");

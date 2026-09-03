@@ -103,74 +103,15 @@
             <h2 id="historyTitle">시간이 쌓인 만큼,<br>교육도 진화해왔습니다</h2>
           </div>
         </header>
-
-        <!--
-          [DB/API 연동 지점 - 학원연혁]
-          운영 시 GET /api/academy/history 결과를 year/tag/title/desc 구조로 받아
-          아래 article.history-node를 반복 렌더링하세요.
-        -->
         <div class="history-stage" id="historyStage">
           <div class="history-rail"><div class="history-rail-fill" id="historyRailFill"></div></div>
-          <article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">BEGIN</div>
-      <h3>상아컴퓨터학원 개원</h3>
-      <p>지역 수강생에게 컴퓨터 교육의 기회를 넓히며 첫걸음을 시작했습니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">1987</div></div>
-</article>
-<article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">GROWTH</div>
-      <h3>교육과정 체계 확대</h3>
-      <p>자격증과 실무 중심의 교육과정을 확장하고 운영 체계를 정비했습니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">1996</div></div>
-</article>
-<article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">PUBLIC TRAINING</div>
-      <h3>직업훈련 교육 확대</h3>
-      <p>취업과 직무능력 향상을 위한 국비지원 교육과정을 본격적으로 강화했습니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">2011</div></div>
-</article>
-<article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">QUALITY</div>
-      <h3>교육 품질 관리 강화</h3>
-      <p>과정별 실습과 평가 체계를 정비하고 수강생 중심의 학습관리를 강화했습니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">2014</div></div>
-</article>
-<article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">CAREER</div>
-      <h3>취업 연계 프로그램 확대</h3>
-      <p>수료 후 직무역량과 취업 준비를 연결하는 실무형 교육 운영을 확대했습니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">2015</div></div>
-</article>
-<article class="history-node">
-  <div class="history-card-wrap">
-    <div class="card history-card">
-      <div class="history-tag">NEXT</div>
-      <h3>배움의 다음을 설계합니다</h3>
-      <p>국비지원, OA, 회계·ERP, 자격증, 프로그래밍과 정보올림피아드까지 다양한 목표를 지원합니다.</p>
-    </div>
-  </div>
-  <div class="history-year-wrap"><div class="history-year">NOW</div></div>
-</article>
+          <div class="card content-card" data-history-loading>연혁을 불러오는 중입니다.</div>
+          
+
+
+
+
+
         </div>
       </section>
 
@@ -280,12 +221,6 @@
       <h3 id="inquiryTitle">상담 신청</h3>
       <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
     </div>
-
-    <!--
-      [DB/API 연동 지점 - 상담신청]
-      실제 서비스에서는 action 또는 JS fetch를 이용해 상담 API와 연결합니다.
-      예: POST /api/inquiries
-    -->
     <form class="form-grid" id="inquiryForm">
       <label>이름<input name="name" required placeholder="홍길동"></label>
       <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
@@ -306,6 +241,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js?v=3"></script>
+<script src="assets/public-data.js?v=7"></script>
+<script src="assets/site-data.js?v=6"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

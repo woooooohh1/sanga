@@ -9,7 +9,9 @@
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="admin.css?v=12.8">
-  <script src="auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js?v=2"></script>
+  <script src="auth.js?v=2"></script>
 </head>
 <body class="admin-login-page admin-login-neumo-page">
   <main class="neumo-login-wrap" id="adminLoginShell">
@@ -106,7 +108,7 @@
           </div>
 
           <div class="neumo-switch-footer">
-            <span><i></i> 관리자 데모 환경</span>
+            <span><i></i> 관리자 운영 환경</span>
             <a class="neumo-home-link" href="../index.html" target='_blank'>홈페이지 보기 <b>↗</b></a>
           </div>
         </div>
@@ -114,6 +116,6 @@
     </section>
   </main>
 
-  <script src="login.js?v=12.8"></script>
+  <script src="login.js?v=2"></script>
 </body>
 </html>

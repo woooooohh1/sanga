@@ -66,14 +66,11 @@
 
 <section class="section">
   <div class="container">
-    <!-- [DB/API 연동 지점 - 취업정보] GET /api/jobs -->
     <div class="table-wrap" data-reveal>
       <table class="data-table">
         <thead><tr><th>분야</th><th>제목</th><th>기업</th><th>등록일</th></tr></thead>
         <tbody>
-          <tr><td>사무·회계</td><td><a href="#">사무·회계 실무자 채용정보 안내</a></td><td>인천지역 기업</td><td>2026.08.29</td></tr>
-          <tr><td>사무직</td><td><a href="#">OA 활용 가능자 채용</a></td><td>계양구 소재 기업</td><td>2026.08.26</td></tr>
-          <tr><td>ERP</td><td><a href="#">ERP 회계 경력무관 채용</a></td><td>부평구 소재 기업</td><td>2026.08.22</td></tr>
+          <tr><td colspan="4">취업정보를 불러오는 중입니다.</td></tr>
         </tbody>
       </table>
     </div>
@@ -142,12 +139,6 @@
       <h3 id="inquiryTitle">상담 신청</h3>
       <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
     </div>
-
-    <!--
-      [DB/API 연동 지점 - 상담신청]
-      실제 서비스에서는 action 또는 JS fetch를 이용해 상담 API와 연결합니다.
-      예: POST /api/inquiries
-    -->
     <form class="form-grid" id="inquiryForm">
       <label>이름<input name="name" required placeholder="홍길동"></label>
       <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
@@ -168,6 +159,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js?v=3"></script>
+<script src="assets/public-data.js?v=7"></script>
+<script src="assets/site-data.js?v=6"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

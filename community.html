@@ -77,14 +77,11 @@
 
     <section aria-labelledby="noticeListTitle">
       <h2 class="sr-only" id="noticeListTitle">공지사항 목록</h2>
-      <!-- [DB/API 연동 지점 - 공지사항] GET /api/notices -->
       <div class="table-wrap" data-reveal>
         <table class="data-table">
           <thead><tr><th>번호</th><th>제목</th><th>등록일</th><th>조회수</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td><a href="#">2026년 하반기 국민내일배움카드 과정 상담 안내</a></td><td>2026.08.28</td><td>128</td></tr>
-            <tr><td>2</td><td><a href="#">9월 일반과정 수강생 모집</a></td><td>2026.08.24</td><td>97</td></tr>
-            <tr><td>3</td><td><a href="#">정보올림피아드 대비반 상담 안내</a></td><td>2026.08.19</td><td>83</td></tr>
+            <tr><td colspan="4">공지사항을 불러오는 중입니다.</td></tr>
           </tbody>
         </table>
       </div>
@@ -154,12 +151,6 @@
       <h3 id="inquiryTitle">상담 신청</h3>
       <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
     </div>
-
-    <!--
-      [DB/API 연동 지점 - 상담신청]
-      실제 서비스에서는 action 또는 JS fetch를 이용해 상담 API와 연결합니다.
-      예: POST /api/inquiries
-    -->
     <form class="form-grid" id="inquiryForm">
       <label>이름<input name="name" required placeholder="홍길동"></label>
       <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
@@ -180,6 +171,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js?v=3"></script>
+<script src="assets/public-data.js?v=7"></script>
+<script src="assets/site-data.js?v=6"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

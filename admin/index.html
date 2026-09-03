@@ -9,7 +9,9 @@
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="admin.css?v=12.6">
-  <script src="auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js?v=2"></script>
+  <script src="auth.js?v=2"></script>
 </head>
 <body>
 <div class="admin-shell">
@@ -30,7 +32,7 @@
   <div class="admin-sidebar-bottom">
     <a class="admin-nav-link" href="../index.html" target="_blank" rel="noopener" style="color:#c9d2df;font-size:13px">↗ 홈페이지 보기</a>
     <br><br>
-    <button class="btn btn-outline" style="width:100%" type="button" data-reset-demo>데모데이터 초기화</button>
+    
   </div>
 </aside>
 
@@ -91,8 +93,8 @@
 <section class="admin-card" style="margin-top:18px">
   <div class="card-head"><h2>운영 전 체크</h2></div>
   <div class="card-body small-note">
-    현재 관리자 페이지는 브라우저 localStorage를 사용하는 데모입니다.<br>
-    실제 운영 시 관리자 로그인, 서버 권한검증, DB 저장, 이미지 업로드, 에디터 보안처리가 반드시 필요합니다.
+    현재 관리자 페이지는 Supabase 데이터베이스와 관리자 세션 RPC를 사용합니다.<br>
+    공개 홈페이지는 RLS가 허용한 공개 데이터만 조회하며, 관리자 쓰기 작업은 세션 검증 후 DB 함수에서 처리합니다.
   </div>
 </section>
 
@@ -101,6 +103,6 @@
 </div>
 
 <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
-<script src="admin.js?v=12.4"></script>
+<script src="admin.js?v=13.0"></script>
 </body>
 </html>

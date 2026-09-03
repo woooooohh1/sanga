@@ -73,9 +73,9 @@
         <p>과정명, 교육기간, 시간, 지원구분을 한 화면에서 비교할 수 있도록 정보 우선순위를 정리했습니다.</p>
       </article>
       <aside class="card course-summary-card motion-card" data-reveal="right">
-        <div class="metric">1</div>
+        <div class="metric">0</div>
         <div class="metric-label">등록된 과정</div>
-        <div class="metric" style="font-size:26px;margin-top:18px">1</div>
+        <div class="metric" style="font-size:26px;margin-top:18px">0</div>
         <div class="metric-label">과정 분야</div>
       </aside>
     </div>
@@ -85,7 +85,6 @@
         <span class="sr-only">분야 선택</span>
         <select id="categoryFilter">
           <option value="">전체 분야</option>
-          <option value="OA">OA</option>
         </select>
       </label>
       <label style="flex:1 1 220px">
@@ -93,39 +92,8 @@
         <input id="courseSearch" type="search" placeholder="과정명, 자격증, 프로그램명으로 검색">
       </label>
     </div>
-
-    <!--
-      [DB/API 연동 지점 - 과정 목록]
-      운영 시 GET /api/courses?type=general 호출 결과를
-      article[data-course-card] 단위로 반복 렌더링하세요.
-      필수 권장 필드:
-      id, category, title, status, description, period, time, support, tuition, tags[]
-    -->
     <div class="course-grid" id="courseList" data-stagger>
-      <article class="card course-card motion-card" data-course-card data-category="OA" data-reveal="scale">
-  <div class="course-top">
-    <div class="course-topline">
-      <span class="chip">OA</span>
-      <span class="status always">상시접수</span>
-    </div>
-    <h3>일반인 맞춤 OA 과정</h3>
-    <p>현재 수준과 필요한 업무를 확인한 뒤 한글·엑셀·파워포인트 중 필요한 기능을 골라 배우는 맞춤형 OA 과정입니다.</p>
-  </div>
-
-  <dl class="course-meta">
-    <span><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg><span class="meta-label">교육기간</span><b>개별 상담</b></span>
-    <span><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="meta-label">교육시간</span><b>시간 협의</b></span>
-    <span><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path d="m8.5 12-1 9 4.5-2 4.5 2-1-9"></path></svg><span class="meta-label">지원구분</span><b>일반과정</b></span>
-  </dl>
-
-  <div class="course-tags"><span>#OA</span><span>#엑셀</span><span>#한글</span><span>#파워포인트</span></div>
-
-  <footer class="course-footer">
-    <div class="course-price"><small>수강료</small><strong>과정별 상이</strong></div>
-    <button class="btn btn-outline" type="button" data-course-detail data-course-id="6">과정 상세</button>
-  </footer>
-</article>
-      <div id="courseEmpty" class="card content-card" hidden style="grid-column:1/-1">검색 결과가 없습니다.</div>
+      <div class="card content-card" data-course-loading style="grid-column:1/-1">과정을 불러오는 중입니다.</div>
     </div>
   </div>
 </section>
@@ -192,12 +160,6 @@
       <h3 id="inquiryTitle">상담 신청</h3>
       <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
     </div>
-
-    <!--
-      [DB/API 연동 지점 - 상담신청]
-      실제 서비스에서는 action 또는 JS fetch를 이용해 상담 API와 연결합니다.
-      예: POST /api/inquiries
-    -->
     <form class="form-grid" id="inquiryForm">
       <label>이름<input name="name" required placeholder="홍길동"></label>
       <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
@@ -218,7 +180,10 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/course-list-page.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js?v=3"></script>
+<script src="assets/public-data.js?v=7"></script>
+<script src="assets/course-list-page.js?v=6"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>
