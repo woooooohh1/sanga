@@ -125,34 +125,91 @@
         </div>
       </section>
 
-      <section id="location" class="section">
-        <header class="section-head reveal-up">
-          <div><div class="section-kicker">Location</div><h2>찾아오시는 길</h2><p>네이버 지도에서 <strong>상아컴퓨터회계학원</strong>으로 검색하세요.</p></div>
+      <section id="location" class="section location-section">
+        <header class="section-head reveal-up location-head">
+          <div>
+            <div class="section-kicker">Location</div>
+            <h2>계산역에서<br>가볍게 걸어오세요</h2>
+            <p>인천지하철 1호선 계산역 1번 출구에서 약 262m 거리에 있습니다.</p>
+          </div>
         </header>
 
-        <div class="location-grid">
-          <article class="card location-info reveal-up">
-            <div class="section-kicker">Sang-A Computer Academy</div>
-            <h2>상아컴퓨터학원</h2>
-            <div class="location-address">인천광역시 계양구 경명대로 1124</div>
-            <p style="margin-top:6px;color:var(--muted)">명인프라자1 501호</p>
+        <div class="location-showcase reveal-up">
+          <article class="card location-summary-card">
+            <div class="location-summary-top">
+              <span class="location-pin-icon location-brand-symbol" aria-hidden="true">
+                <img src="assets/images/sanga-symbol-512.png" alt="">
+              </span>
+              <div>
+                <span class="location-overline">SANG-A COMPUTER ACADEMY</span>
+                <h3>상아컴퓨터학원</h3>
+              </div>
+            </div>
+
+            <div class="location-main-address">인천 계양구 경명대로 1124</div>
+            <p class="location-room">명인프라자1 501호</p>
+
+            <div class="location-quick-facts">
+              <span><b>인천1</b> 계산역 1번 출구</span>
+              <span><b>도보</b> 약 262m</span>
+            </div>
+
             <div class="location-actions">
               <a class="btn btn-naver" href="https://map.naver.com/p/search/%EC%83%81%EC%95%84%EC%BB%B4%ED%93%A8%ED%84%B0%ED%9A%8C%EA%B3%84%ED%95%99%EC%9B%90" target="_blank" rel="noopener"><span class="naver-n">N</span> 네이버지도에서 보기</a>
               <button class="btn btn-sky" type="button" data-open-inquiry>방문 상담 신청</button>
             </div>
           </article>
 
-          <a class="card map-card naver-map-preview motion-card reveal-up"
-             href="https://map.naver.com/p/search/%EC%83%81%EC%95%84%EC%BB%B4%ED%93%A8%ED%84%B0%ED%9A%8C%EA%B3%84%ED%95%99%EC%9B%90"
-             target="_blank" rel="noopener" aria-label="네이버지도에서 상아컴퓨터회계학원 보기">
-            <div class="naver-map-toolbar"><span class="naver-brand"><b>N</b> NAVER 지도</span><span class="naver-searchbox">상아컴퓨터회계학원</span></div>
-            <div class="naver-map-canvas">
-              <div class="map-road road-one"></div><div class="map-road road-two"></div><div class="map-road road-three"></div>
-              <div class="map-block block-a"></div><div class="map-block block-b"></div><div class="map-block block-c"></div><div class="map-block block-d"></div>
-              <div class="naver-place-card"><div class="naver-pin">●</div><div><strong>상아컴퓨터회계학원</strong><span>인천광역시 계양구 경명대로 1124</span><small>명인프라자1 501호</small></div></div>
-              <div class="naver-map-cta">네이버 지도에서 정확한 위치 보기 →</div>
+          <a class="card location-static-map" href="https://map.naver.com/p/search/%EC%83%81%EC%95%84%EC%BB%B4%ED%93%A8%ED%84%B0%ED%9A%8C%EA%B3%84%ED%95%99%EC%9B%90" target="_blank" rel="noopener" aria-label="네이버 지도에서 상아컴퓨터학원 위치 확인">
+            <img src="assets/images/location-map.webp" alt="계산역과 상아컴퓨터학원 주변 위치 안내 지도">
+            <div class="location-map-overlay">
+              <span class="location-map-badge">계산역 1번 출구 · 도보 약 262m</span>
+              <span class="location-map-open">지도 크게 보기 <b>↗</b></span>
             </div>
           </a>
+        </div>
+
+        <div class="transit-guide reveal-up">
+          <article class="card transit-card transit-subway">
+            <div class="transit-card-head">
+              <span class="transit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="15" rx="4"></rect><path d="M8 7h8M8 12h8M8 21l2-3m6 3-2-3"></path><circle cx="9" cy="15" r="1"></circle><circle cx="15" cy="15" r="1"></circle></svg>
+              </span>
+              <div><span class="transit-label">SUBWAY</span><h3>지하철로 오시는 길</h3></div>
+            </div>
+            <div class="transit-highlight">
+              <span class="line-chip">인천1</span>
+              <strong>계산역 1번 출구</strong>
+              <em>약 262m</em>
+            </div>
+            <ol class="route-steps">
+              <li><span>1</span><p><b>계산역 1번 출구</b>로 나오세요.</p></li>
+              <li><span>2</span><p><b>천년부페웨딩홀 방향</b>으로 약 300m 직진하면 됩니다.</p></li>
+            </ol>
+          </article>
+
+          <article class="card transit-card transit-bus">
+            <div class="transit-card-head">
+              <span class="transit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="16" rx="3"></rect><path d="M7 8h10M8 19v2m8-2v2"></path><circle cx="8.5" cy="15.5" r="1"></circle><circle cx="15.5" cy="15.5" r="1"></circle></svg>
+              </span>
+              <div><span class="transit-label">BUS</span><h3>버스로 오시는 길</h3></div>
+            </div>
+            <div class="bus-stop-box">
+              <span>가까운 정류장</span>
+              <strong>하나아파트</strong>
+              <small>정류소 41250 · 학원 인근</small>
+            </div>
+            <div class="bus-lines">
+              <div><span>간선</span><div><b>24-1</b><b>30</b><b>79</b><b>80</b></div></div>
+              <div><span>지선</span><div><b>584-1</b><b>588</b></div></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="location-notice reveal-up">
+          <span class="location-notice-icon">i</span>
+          <p><b>방문 전 참고해 주세요.</b> 버스 노선 정보는 2026년 인천 버스정보시스템 기준이며 노선 개편에 따라 변경될 수 있습니다. 방문 전 최신 운행 정보를 한 번 더 확인해 주세요.</p>
         </div>
       </section>
     </div>

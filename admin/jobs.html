@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="admin.css?v=12.6">
+  <link rel="stylesheet" href="admin.css?v=13.4">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/supabase-config.js?v=2"></script>
   <script src="auth.js?v=2"></script>
@@ -71,7 +71,7 @@
   <!-- [DB/API 연동 지점] GET /api/admin/jobs -->
   <div class="table-wrap">
     <table class="admin-table">
-      <thead><tr><th>ID</th><th>분야</th><th>제목</th><th>기업</th><th>등록일</th><th>관리</th></tr></thead>
+      <thead><tr><th>번호</th><th>분야</th><th>제목</th><th>기업</th><th>등록일</th><th>관리</th></tr></thead>
       <tbody id="jobTableBody"></tbody>
     </table>
   </div>
@@ -99,6 +99,7 @@
 </div>
 
 <div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
+<script src="admin-controls.js?v=13.4"></script>
 <script src="admin.js?v=13.0"></script>
 </body>
 </html>

@@ -2835,3 +2835,471 @@ body {
 html, body, button, input, select, textarea, table, th, td {
   font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
 }
+
+/* ===== v12 static map + transit guide ===== */
+.location-section {
+  position: relative;
+}
+
+.location-head p {
+  max-width: 620px;
+  margin-top: 10px;
+}
+
+.location-showcase {
+  display: grid;
+  grid-template-columns: minmax(300px, .72fr) minmax(0, 1.28fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.location-summary-card {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  min-height: 410px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(12,168,220,.10), transparent 35%),
+    linear-gradient(145deg, #fff, #fbfdff);
+}
+
+.location-summary-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.location-pin-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, var(--sky), var(--orange));
+  box-shadow: 0 12px 28px rgba(11,160,207,.18);
+}
+
+.location-pin-icon svg,
+.transit-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.location-overline {
+  display: block;
+  color: var(--sky);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+
+.location-summary-top h3 {
+  margin: 6px 0 0;
+  font-size: 21px;
+  letter-spacing: -.025em;
+}
+
+.location-main-address {
+  margin-top: 34px;
+  font-size: clamp(24px, 2.35vw, 34px);
+  line-height: 1.27;
+  font-weight: 900;
+  letter-spacing: -.045em;
+  word-break: keep-all;
+}
+
+.location-room {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.location-quick-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 26px;
+}
+
+.location-quick-facts span {
+  padding: 12px 13px;
+  border-radius: 13px;
+  border: 1px solid rgba(15,48,82,.08);
+  background: rgba(246,249,252,.82);
+  color: #465468;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.location-quick-facts b {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.location-summary-card .location-actions {
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+.location-static-map {
+  min-height: 410px;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #edf2f4;
+}
+
+.location-static-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 52%, rgba(15,29,44,.13) 100%);
+}
+
+.location-static-map img {
+  width: 100%;
+  height: 100%;
+  min-height: 410px;
+  object-fit: cover;
+  display: block;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), filter .35s ease;
+}
+
+.location-static-map:hover img {
+  transform: scale(1.025);
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.location-map-overlay {
+  position: absolute;
+  z-index: 2;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.location-map-badge,
+.location-map-open {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 9px 13px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(24,37,56,.08);
+  box-shadow: 0 10px 28px rgba(28,48,74,.14);
+  backdrop-filter: blur(10px);
+  color: #26354a;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.location-map-open b {
+  margin-left: 7px;
+  color: var(--orange);
+}
+
+.transit-guide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.transit-card {
+  padding: 25px;
+  overflow: hidden;
+  position: relative;
+}
+
+.transit-card::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  right: -85px;
+  top: -95px;
+  background: rgba(12,168,220,.06);
+}
+
+.transit-bus::before {
+  background: rgba(255,91,33,.06);
+}
+
+.transit-card-head {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  position: relative;
+}
+
+.transit-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  color: var(--sky);
+  background: #edf9fd;
+}
+
+.transit-bus .transit-icon {
+  color: var(--orange);
+  background: #fff3ee;
+}
+
+.transit-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.transit-card-head h3 {
+  margin: 3px 0 0;
+  font-size: 18px;
+  letter-spacing: -.025em;
+}
+
+.transit-highlight {
+  margin-top: 21px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f5fafc;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.line-chip {
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: #6b99c7;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.transit-highlight strong {
+  font-size: 15px;
+}
+
+.transit-highlight em {
+  color: var(--sky);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.route-steps {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 16px 0 0;
+}
+
+.route-steps li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.route-steps li > span {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: #eef8fb;
+  color: #078eb9;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.route-steps p {
+  margin: 4px 0 0;
+  color: #5e6b7e;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.bus-stop-box {
+  margin-top: 21px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff7f3;
+}
+
+.bus-stop-box span,
+.bus-stop-box strong,
+.bus-stop-box small {
+  display: block;
+}
+
+.bus-stop-box span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.bus-stop-box strong {
+  margin-top: 4px;
+  font-size: 18px;
+}
+
+.bus-stop-box small {
+  margin-top: 4px;
+  color: #7a8596;
+  font-size: 11px;
+}
+
+.bus-lines {
+  display: grid;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.bus-lines > div {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.bus-lines > div > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.bus-lines > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.bus-lines b {
+  padding: 7px 10px;
+  border: 1px solid rgba(255,91,33,.15);
+  border-radius: 9px;
+  background: #fff;
+  color: #ef5f2a;
+  font-size: 12px;
+}
+
+.location-notice {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 11px;
+  align-items: start;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(32,66,98,.08);
+  border-radius: 15px;
+  background: #f8fafc;
+}
+
+.location-notice-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--sky);
+  border: 1px solid rgba(11,159,207,.14);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.location-notice p {
+  margin: 3px 0 0;
+  color: #69768a;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.location-notice p b {
+  color: #344257;
+}
+
+@media (max-width: 920px) {
+  .location-showcase,
+  .transit-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .location-summary-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .location-summary-card,
+  .transit-card {
+    padding: 21px;
+  }
+
+  .location-main-address {
+    font-size: 25px;
+  }
+
+  .location-quick-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .location-map-overlay {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .location-map-badge,
+  .location-map-open {
+    width: fit-content;
+  }
+
+  .transit-highlight {
+    grid-template-columns: auto 1fr;
+  }
+
+  .transit-highlight em {
+    grid-column: 2;
+  }
+}
+
+
+/* ===== v12.1 Location brand symbol ===== */
+.location-brand-symbol {
+  background:
+    radial-gradient(circle at 32% 22%, #ffffff 0%, #ffffff 58%, #fff7f2 100%);
+  border: 1px solid rgba(241, 90, 36, .12);
+  box-shadow:
+    0 12px 28px rgba(241, 90, 36, .10),
+    inset 0 1px 0 rgba(255,255,255,.95);
+  overflow: hidden;
+}
+
+.location-brand-symbol img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+}
