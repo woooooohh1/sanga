@@ -42,7 +42,7 @@
 
   async function noticesPage(){
     const tb=document.querySelector('.data-table tbody'); if(!tb)return;
-    try{const data=await api.loadNotices();tb.innerHTML=data.map((n,i)=>`<tr><td>${data.length-i}</td><td><strong>${esc(n.title)}</strong><div style="margin-top:5px;color:#667085">${esc(n.content)}</div></td><td>${fmtDate(n.published_on)}</td><td>${Number(n.view_count||0)}</td></tr>`).join('')||'<tr><td colspan="4">등록된 공지사항이 없습니다.</td></tr>';}
+    try{const data=await api.loadNotices();tb.innerHTML=data.map((n,i)=>`<tr><td>${i+1}</td><td><strong>${esc(n.title)}</strong><div style="margin-top:5px;color:#667085">${esc(n.content)}</div></td><td>${fmtDate(n.published_on)}</td><td>${Number(n.view_count||0)}</td></tr>`).join('')||'<tr><td colspan="4">등록된 공지사항이 없습니다.</td></tr>';}
     catch(e){console.error('[SANGA] public notices page',e);tb.innerHTML='<tr><td colspan="4">공지사항을 불러오지 못했습니다.</td></tr>';}
   }
 
@@ -52,23 +52,140 @@
     catch(e){console.error('[SANGA] public jobs',e);tb.innerHTML='<tr><td colspan="4">취업정보를 불러오지 못했습니다.</td></tr>';}
   }
 
+  function setAcademyStat(name,value){
+    const el=document.querySelector(`.stat-value[data-stat="${name}"]`);
+    if(!el)return;
+    const n=Number(value);
+    if(!Number.isFinite(n)){
+      el.textContent='—';
+      el.removeAttribute('data-count');
+      return;
+    }
+    el.dataset.count=String(Math.max(0,Math.round(n)));
+    el.dataset.counted='false';
+    el.textContent='0';
+  }
+
+  function historyYearSpan(rows){
+    const years=(rows||[]).map(x=>{
+      const m=String(x?.year_label||'').match(/(?:19|20)\d{2}/);
+      return m?Number(m[0]):NaN;
+    }).filter(Number.isFinite);
+    if(!years.length)return null;
+    const first=Math.min(...years);
+    const latest=Math.max(...years);
+    const end=Math.max(new Date().getFullYear(),latest);
+    return Math.max(1,end-first+1);
+  }
+
+  async function academyStats(){
+    if(!document.querySelector('.stat-value[data-stat]'))return;
+    setAcademyStat('practical',100);
+    try{
+      const [historyResult,coursesResult]=await Promise.allSettled([
+        api.loadHistory(),
+        api.queryCourses()
+      ]);
+
+      if(historyResult.status==='fulfilled'){
+        setAcademyStat('experience',historyYearSpan(historyResult.value));
+      }else{
+        setAcademyStat('experience',NaN);
+        console.error('[SANGA] academy stats history',historyResult.reason);
+      }
+
+      if(coursesResult.status==='fulfilled'){
+        const rows=Array.isArray(coursesResult.value)?coursesResult.value:[];
+        const typeCodes=new Set(rows.map(r=>String(r?.course_types?.code||'').trim()).filter(Boolean));
+        setAcademyStat('areas',typeCodes.size);
+        const funded=['unemployed','worker'].filter(code=>typeCodes.has(code)).length;
+        setAcademyStat('fundedTypes',funded);
+      }else{
+        setAcademyStat('areas',NaN);
+        setAcademyStat('fundedTypes',NaN);
+        console.error('[SANGA] academy stats courses',coursesResult.reason);
+      }
+    }finally{
+      window.dispatchEvent(new CustomEvent('sanga:stats-rendered'));
+    }
+  }
+
   async function historyPage(){
     const host=document.querySelector('#historyStage'); if(!host)return;
     try{
       const data=await api.loadHistory();
-      const rail='<div class="history-rail"><div class="history-rail-fill" id="historyRailFill"></div></div>';
-      const cards=data.map(x=>`<article class="history-node reveal-up is-visible"><div class="history-card-wrap"><div class="card history-card"><span class="history-tag">${esc(x.tag||'HISTORY')}</span><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p></div></div><div class="history-year-wrap"><strong class="history-year">${esc(x.year_label)}</strong></div></article>`).join('');
-      host.innerHTML=rail+(cards||'<div class="card content-card history-empty-state">등록된 학원 연혁이 없습니다.</div>');
-      // app.js initializes before async data arrives, so make the new rail visible immediately.
-      const fill=host.querySelector('#historyRailFill'); if(fill) fill.style.height=data.length?'100%':'0%';
+      if(!data.length){
+        host.innerHTML='<div class="card content-card history-empty-state">등록된 학원 연혁이 없습니다.</div>';
+        return;
+      }
+
+      const total=data.length;
+      const pickCount=Math.min(5,total);
+      const featured=[];
+      for(let i=0;i<pickCount;i++){
+        const idx=pickCount===1?0:Math.round((total-1)*(i/(pickCount-1)));
+        if(!featured.includes(idx)) featured.push(idx);
+      }
+      for(let i=0;featured.length<pickCount && i<total;i++) if(!featured.includes(i)) featured.push(i);
+      featured.sort((a,b)=>a-b);
+
+      const startYear=esc(data[0].year_label||'');
+      const endYear=esc(data[data.length-1].year_label||'');
+      const milestoneCards=featured.map((idx,order)=>{
+        const x=data[idx];
+        const isCurrent=idx===data.length-1;
+        return `<article class="history-milestone-card${isCurrent?' is-current':''}" data-history-reveal>
+          <div class="history-milestone-top">
+            <span class="history-milestone-no">${String(order+1).padStart(2,'0')}</span>
+            <span class="history-milestone-tag">${esc(x.tag||'HISTORY')}</span>
+          </div>
+          <div class="history-milestone-year">${esc(x.year_label)}</div>
+          <h3>${esc(x.title)}</h3>
+          <p>${esc(x.description)}</p>
+          ${isCurrent?'<span class="history-current-badge">CURRENT</span>':''}
+        </article>`;
+      }).join('');
+
+      const details=data.map((x,i)=>`<article class="history-detail-row" data-history-reveal>
+        <div class="history-detail-year">${esc(x.year_label)}</div>
+        <div class="history-detail-dot" aria-hidden="true"></div>
+        <div class="history-detail-copy">
+          <div class="history-detail-meta"><span>${esc(x.tag||'HISTORY')}</span><span>${String(i+1).padStart(2,'0')}</span></div>
+          <h3>${esc(x.title)}</h3>
+          <p>${esc(x.description)}</p>
+        </div>
+      </article>`).join('');
+
+      host.innerHTML=`
+        <div class="history-overview" data-history-reveal>
+          <div class="history-range" aria-label="연혁 기간">
+            <strong>${startYear}</strong><span class="history-range-line" aria-hidden="true"><i></i></span><strong>${endYear}</strong>
+          </div>
+          <div class="history-overview-copy">
+            <b>${total}개의 성장 순간</b>
+            <span>중요한 변화와 도전을 중심으로 정리했습니다.</span>
+          </div>
+        </div>
+        <div class="history-milestones">${milestoneCards}</div>
+        <div class="history-expand">
+          <button class="history-toggle" id="historyToggle" type="button" aria-expanded="false" aria-controls="historyDetails">
+            <span class="history-toggle-label">전체 연혁 보기</span>
+            <span class="history-toggle-count">${total}</span>
+            <span class="history-toggle-icon" aria-hidden="true"></span>
+          </button>
+          <div class="history-details-shell" id="historyDetails" aria-hidden="true">
+            <div class="history-details-inner"><div class="history-details">${details}</div></div>
+          </div>
+        </div>`;
+      window.dispatchEvent(new CustomEvent('sanga:history-rendered'));
     }catch(e){
       console.error('[SANGA] public history',e);
-      host.innerHTML='<div class="history-rail"><div class="history-rail-fill" id="historyRailFill"></div></div><div class="card content-card history-empty-state">학원 연혁을 불러오지 못했습니다.</div>';
+      host.innerHTML='<div class="card content-card history-empty-state">학원 연혁을 불러오지 못했습니다.</div>';
     }
   }
 
   if(file==='index.html'||file==='')home();
   if(file==='community.html')noticesPage();
   if(file==='jobs.html')jobsPage();
-  if(file==='academy.html')historyPage();
+  if(file==='academy.html'){historyPage();academyStats();}
 })();

@@ -74,11 +74,176 @@
     legacyRevealEls.forEach((el) => observer.observe(el));
   }
 
+  function enhancePublicSelect(select) {
+    if (!select || select.dataset.customized === "true") return;
+
+    select.dataset.customized = "true";
+    select.classList.add("custom-select-native");
+
+    const wrap = document.createElement("div");
+    wrap.className = "custom-select";
+    if (select.closest(".toolbar")) wrap.classList.add("custom-select-toolbar");
+    if (select.closest(".form-grid")) wrap.classList.add("custom-select-form");
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "custom-select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.disabled = select.disabled;
+
+    const selectLabel = select.getAttribute("aria-label") ||
+      select.closest("label")?.querySelector(".sr-only")?.textContent?.trim() ||
+      select.name || select.id || "선택";
+    trigger.setAttribute("aria-label", selectLabel);
+
+    const value = document.createElement("span");
+    value.className = "custom-select-value";
+    const arrow = document.createElement("span");
+    arrow.className = "custom-select-arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    trigger.append(value, arrow);
+
+    const list = document.createElement("div");
+    list.className = "custom-select-list";
+    list.setAttribute("role", "listbox");
+    list.tabIndex = -1;
+
+    const close = () => {
+      wrap.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
+    const sync = () => {
+      const selected = select.options[select.selectedIndex] || select.options[0];
+      value.textContent = selected?.textContent || "선택해 주세요";
+      trigger.disabled = select.disabled;
+      qsa('.custom-select-option', list).forEach((option) => {
+        const active = option.dataset.value === select.value;
+        option.classList.toggle("is-selected", active);
+        option.setAttribute("aria-selected", String(active));
+      });
+    };
+
+    const open = () => {
+      if (trigger.disabled || !list.children.length) return;
+      qsa('.custom-select.is-open').forEach((other) => {
+        if (other !== wrap) {
+          other.classList.remove('is-open');
+          qs('.custom-select-trigger', other)?.setAttribute('aria-expanded', 'false');
+        }
+      });
+      wrap.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+      const active = qs('.custom-select-option.is-selected', list) || qs('.custom-select-option:not(:disabled)', list);
+      active?.focus();
+    };
+
+    const rebuild = () => {
+      const wasOpen = wrap.classList.contains("is-open");
+      list.replaceChildren();
+
+      [...select.options].forEach((nativeOption) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "custom-select-option";
+        option.dataset.value = nativeOption.value;
+        option.textContent = nativeOption.textContent;
+        option.setAttribute("role", "option");
+        option.disabled = nativeOption.disabled;
+
+        option.addEventListener("click", () => {
+          if (nativeOption.disabled) return;
+          select.value = nativeOption.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          close();
+          trigger.focus();
+        });
+
+        option.addEventListener("keydown", (e) => {
+          const options = qsa('.custom-select-option:not(:disabled)', list);
+          const index = options.indexOf(option);
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            options[(index + 1) % options.length]?.focus();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            options[(index - 1 + options.length) % options.length]?.focus();
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            options[0]?.focus();
+          } else if (e.key === "End") {
+            e.preventDefault();
+            options.at(-1)?.focus();
+          } else if (e.key === "Escape" || e.key === "Tab") {
+            close();
+            if (e.key === "Escape") {
+              e.preventDefault();
+              trigger.focus();
+            }
+          }
+        });
+        list.appendChild(option);
+      });
+
+      sync();
+      if (wasOpen) open();
+    };
+
+    select.parentNode.insertBefore(wrap, select.nextSibling);
+    wrap.append(select, trigger, list);
+
+    trigger.addEventListener("click", () => {
+      if (wrap.classList.contains("is-open")) close();
+      else open();
+    });
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      } else if (e.key === "Escape") {
+        close();
+      }
+    });
+    select.addEventListener("change", sync);
+    select.form?.addEventListener("reset", () => setTimeout(sync, 0));
+
+    const optionObserver = new MutationObserver(() => rebuild());
+    optionObserver.observe(select, { childList: true, subtree: true, characterData: true });
+
+    rebuild();
+  }
+
+  function initPublicSelects() {
+    qsa("select").forEach(enhancePublicSelect);
+
+    const selectObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches?.("select")) enhancePublicSelect(node);
+          qsa("select", node).forEach(enhancePublicSelect);
+        });
+      });
+    });
+    selectObserver.observe(document.body, { childList: true, subtree: true });
+
+    document.addEventListener("click", (e) => {
+      qsa('.custom-select.is-open').forEach((wrap) => {
+        if (!wrap.contains(e.target)) {
+          wrap.classList.remove('is-open');
+          qs('.custom-select-trigger', wrap)?.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  }
+
   function initInquiryModal() {
     const modal = qs("#inquiryModal");
     const form = qs("#inquiryForm");
     const toast = qs("#toast");
     if (!modal) return;
+
 
     const openModal = () => {
       modal.classList.add("open");
@@ -160,92 +325,110 @@
     category?.addEventListener("change", filter);
   }
 
+  let historyCleanup = null;
   function initAcademyHistory() {
-    const stage = qs("#historyStage");
-    const fill = qs("#historyRailFill");
-    const nodes = qsa(".history-node");
-    const counters = qsa("[data-count]");
+    if (historyCleanup) { historyCleanup(); historyCleanup = null; }
 
-    if (!stage || !fill) return;
+    const section = qs("#history");
+    const toggle = qs("#historyToggle");
+    const details = qs("#historyDetails");
+    const revealItems = section ? qsa("[data-history-reveal]", section) : [];
+    if (!section) return;
+
+    const reduced = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cleanup = [];
+
+    if (reduced || !("IntersectionObserver" in window)) {
+      revealItems.forEach((el) => el.classList.add("is-visible"));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.14, rootMargin: "0px 0px -7%" });
+      revealItems.forEach((el, i) => {
+        el.style.setProperty("--history-delay", `${Math.min(i, 6) * 55}ms`);
+        observer.observe(el);
+      });
+      cleanup.push(() => observer.disconnect());
+    }
+
+    if (toggle && details) {
+      const label = qs(".history-toggle-label", toggle);
+      const onToggle = () => {
+        const open = toggle.getAttribute("aria-expanded") !== "true";
+        toggle.setAttribute("aria-expanded", String(open));
+        details.setAttribute("aria-hidden", String(!open));
+        section.classList.toggle("is-history-expanded", open);
+        if (label) label.textContent = open ? "연혁 접기" : "전체 연혁 보기";
+
+        if (open && !reduced) {
+          qsa("[data-history-reveal]", details).forEach((el, i) => {
+            window.setTimeout(() => el.classList.add("is-visible"), Math.min(i, 8) * 45);
+          });
+        }
+      };
+      toggle.addEventListener("click", onToggle);
+      cleanup.push(() => toggle.removeEventListener("click", onToggle));
+    }
+
+    historyCleanup = () => cleanup.forEach((fn) => fn());
+  }
+  window.addEventListener("sanga:history-rendered", initAcademyHistory);
+
+  let statCounterObserver = null;
+  function initStatCounters() {
+    if (statCounterObserver) { statCounterObserver.disconnect(); statCounterObserver = null; }
+    const counters = qsa(".stat-value[data-count]");
+    if (!counters.length) return;
 
     const reduced = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (reduced) {
-      nodes.forEach((n) => n.classList.add("is-visible"));
-      fill.style.height = "100%";
-      counters.forEach((el) => el.textContent = el.dataset.count || "0");
+    const setFinal = (el) => {
+      const target = Number(el.dataset.count || 0);
+      el.textContent = Number.isFinite(target) ? target.toLocaleString("ko-KR") : "0";
+      el.dataset.counted = "true";
+    };
+
+    const animate = (el) => {
+      if (el.dataset.counted === "true") return;
+      const target = Number(el.dataset.count || 0);
+      if (!Number.isFinite(target)) { setFinal(el); return; }
+
+      el.dataset.counted = "true";
+      const duration = 900;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased).toLocaleString("ko-KR");
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if (reduced || !("IntersectionObserver" in window)) {
+      counters.forEach(setFinal);
       return;
     }
 
-    const historyObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("is-visible");
-      });
-    }, { threshold: 0.38 });
-
-    nodes.forEach((node) => historyObserver.observe(node));
-
-    const countObserver = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-
-        const el = entry.target;
-        const end = Math.max(0, Number(el.dataset.count) || 0);
-        const start = performance.now();
-        const duration = 850;
-
-        const tick = (now) => {
-          const p = Math.min(1, (now - start) / duration);
-          const eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = Math.round(end * eased);
-          if (p < 1) requestAnimationFrame(tick);
-        };
-
-        requestAnimationFrame(tick);
-        countObserver.unobserve(el);
+        animate(entry.target);
+        observer.unobserve(entry.target);
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.35, rootMargin: "0px 0px -5% 0px" });
+    statCounterObserver = observer;
 
-    counters.forEach((el) => countObserver.observe(el));
-
-    let raf = 0;
-    const updateTimeline = () => {
-      raf = 0;
-      const rect = stage.getBoundingClientRect();
-      const viewportMid = window.innerHeight * 0.58;
-      const ratio = Math.max(
-        0,
-        Math.min(1, (viewportMid - rect.top) / Math.max(1, rect.bottom - rect.top))
-      );
-
-      fill.style.height = `${(ratio * 100).toFixed(2)}%`;
-
-      let nearest = null;
-      let nearestDist = Infinity;
-
-      nodes.forEach((node) => {
-        const r = node.getBoundingClientRect();
-        const dist = Math.abs((r.top + r.height / 2) - viewportMid);
-        if (dist < nearestDist) {
-          nearestDist = dist;
-          nearest = node;
-        }
-      });
-
-      nodes.forEach((node) => {
-        node.classList.toggle("is-highlight", node === nearest && nearestDist < 180);
-      });
-    };
-
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(updateTimeline);
-    };
-
-    updateTimeline();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    counters.forEach((el) => observer.observe(el));
   }
+  window.addEventListener("sanga:stats-rendered", initStatCounters);
 
   function initCourseDetailButtons() {
     qsa("[data-course-detail]").forEach((btn) => {
@@ -266,8 +449,10 @@
 
   initMobileMenu();
   initGlobalMotion();
+  initPublicSelects();
   initInquiryModal();
   initCourseFilter();
   initAcademyHistory();
+  initStatCounters();
   initCourseDetailButtons();
 })();

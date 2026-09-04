@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/styles.css?v=22">
 </head>
 <body>
 <header class="site-header">
@@ -82,10 +82,10 @@
           <p>상아컴퓨터학원은 자격증 취득, 취업 준비, 업무 역량 향상, 프로그래밍 학습 등 다양한 목표를 가진 수강생에게 단계별 교육을 제공합니다.</p>
 
           <div class="stat-grid">
-            <div class="card stat-card"><span class="stat-value" data-count="39">0</span><span class="stat-label">교육 경험(년)</span></div>
-            <div class="card stat-card"><span class="stat-value" data-count="4">0</span><span class="stat-label">핵심 교육영역</span></div>
-            <div class="card stat-card"><span class="stat-value" data-count="2">0</span><span class="stat-label">국비지원 유형</span></div>
-            <div class="card stat-card"><span class="stat-value" data-count="100">0</span><span class="stat-label">실무 중심 (%)</span></div>
+            <div class="card stat-card"><span class="stat-value" data-stat="experience">—</span><span class="stat-label">교육 경험(년)</span></div>
+            <div class="card stat-card"><span class="stat-value" data-stat="areas">—</span><span class="stat-label">핵심 교육영역</span></div>
+            <div class="card stat-card"><span class="stat-value" data-stat="fundedTypes">—</span><span class="stat-label">국비지원 유형</span></div>
+            <div class="card stat-card"><span class="stat-value" data-stat="practical" data-count="100">0</span><span class="stat-label">실무 중심 (%)</span></div>
           </div>
         </article>
 
@@ -101,17 +101,11 @@
           <div>
             <div class="section-kicker">History</div>
             <h2 id="historyTitle">시간이 쌓인 만큼,<br>교육도 진화해왔습니다</h2>
+            <p class="history-hint"><span class="history-hint-dot"></span> 상아컴퓨터학원이 걸어온 주요 순간을 한눈에 살펴보세요.</p>
           </div>
         </header>
         <div class="history-stage" id="historyStage">
-          <div class="history-rail"><div class="history-rail-fill" id="historyRailFill"></div></div>
           <div class="card content-card" data-history-loading>연혁을 불러오는 중입니다.</div>
-          
-
-
-
-
-
         </div>
       </section>
 
@@ -301,7 +295,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/supabase-config.js?v=3"></script>
 <script src="assets/public-data.js?v=7"></script>
-<script src="assets/site-data.js?v=6"></script>
-<script src="assets/app.js"></script>
+<script src="assets/site-data.js?v=22"></script>
+<script src="assets/app.js?v=22"></script>
 </body>
 </html>

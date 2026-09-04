@@ -39,7 +39,7 @@
     qsa('button[data-p]',host).forEach(btn=>btn.addEventListener('click',()=>{state.page[key]=Number(btn.dataset.p); render();}));
   }
   function pageSlice(key,list){ const pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE)); const p=Math.min(Math.max(state.page[key]||1,1),pages); state.page[key]=p; return list.slice((p-1)*PAGE_SIZE,p*PAGE_SIZE); }
-  function rowNumber(key,total,index){ return total - (((state.page[key]||1)-1)*PAGE_SIZE + index); }
+  function rowNumber(key,total,index){ return (((state.page[key]||1)-1)*PAGE_SIZE + index + 1); }
   function decorate(){ qsa('.admin-table:not(.dashboard-table)').forEach(table=>{const labels=qsa('thead th',table).map(x=>x.textContent.trim());qsa('tbody tr',table).forEach(tr=>qsa('td',tr).forEach((td,i)=>{if(!td.hasAttribute('colspan')) td.dataset.label=labels[i]||'항목';}));}); }
 
   function recruitmentStatus(c) {
