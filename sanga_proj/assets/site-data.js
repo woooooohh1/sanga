@@ -1,0 +1,191 @@
+(function(){
+  "use strict";
+  const api=window.SangaPublicData; if(!api) return;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const fmtDate=v=>v?String(v).slice(0,10).replaceAll('-','.'):'-';
+  const file=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  const pickCohort=list=>{const a=[...(list||[])].filter(x=>x.is_published!==false);if(!a.length)return null;const t=new Date();t.setHours(0,0,0,0);a.sort((x,y)=>{const X=x.course_start_date?new Date(x.course_start_date+'T00:00:00'):new Date(8640000000000000),Y=y.course_start_date?new Date(y.course_start_date+'T00:00:00'):new Date(8640000000000000),xf=X>=t,yf=Y>=t;if(xf!==yf)return xf?-1:1;return xf?X-Y:Y-X;});return a[0];};
+  const recStatus=c=>{if(!c)return'준비중';if(c.operation_status==='cancelled')return'마감';if(c.recruitment_type==='rolling')return'상시접수';const t=new Date();t.setHours(0,0,0,0);const s=c.application_start_date?new Date(c.application_start_date+'T00:00:00'):null;const e=c.application_end_date?new Date(c.application_end_date+'T00:00:00'):null;if(s&&t<s)return'준비중';if(e&&t>e)return'마감';if(s&&e)return'모집중';return'준비중';};
+  const statusClass=s=>s==='마감'?'closed':s==='상시접수'?'always':'open';
+  const metaIcon=k=>({period:'<svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg>',time:'<svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',support:'<svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path d="m8.5 12-1 9 4.5-2 4.5 2-1-9"></path></svg>'}[k]);
+
+  function homeCourseGrid(){return document.querySelector('#popularCourseTitle')?.closest('.section')?.querySelector('.course-grid');}
+  function homeNoticeHost(){const h=document.querySelector('#noticeTitle')?.closest('.section-head')?.nextElementSibling;return h?.classList.contains('notice-list')?h:null;}
+
+  async function homeCourses(){
+    const grid=homeCourseGrid(); if(!grid)return;
+    try{
+      const rows=await api.queryCourses();
+      const visible=rows.slice(0,3);
+      grid.innerHTML=visible.length?visible.map(r=>{
+        const c=pickCohort(r.course_cohorts),s=recStatus(c),tags=(r.course_tags||[]).map(x=>x.tags?.name).filter(Boolean).slice(0,4);
+        return `<article class="card course-card motion-card"><div class="course-top"><div class="course-topline"><span class="chip">${esc(r.course_categories?.name||'과정')}</span><span class="status ${statusClass(s)}">${esc(s)}</span></div><h3>${esc(r.title)}</h3><p>${esc(r.short_description||r.description||r.lead||'')}</p></div><dl class="course-meta"><span>${metaIcon('period')}<span class="meta-label">교육기간</span><b>${c?.course_start_date&&c?.course_end_date?`${fmtDate(c.course_start_date)} ~ ${fmtDate(c.course_end_date)}`:'상담 문의'}</b></span><span>${metaIcon('time')}<span class="meta-label">교육시간</span><b>${c?.class_start_time&&c?.class_end_time?`${String(c.class_start_time).slice(0,5)} ~ ${String(c.class_end_time).slice(0,5)}`:'상담 문의'}</b></span><span>${metaIcon('support')}<span class="meta-label">지원구분</span><b>${esc(c?.support_description||'상담 문의')}</b></span></dl><div class="course-tags">${tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div><footer class="course-footer"><div class="course-price"><small>수강료</small><strong>${c?Number(c.tuition_amount||0).toLocaleString('ko-KR')+'원':'상담 문의'}</strong></div><a class="btn btn-outline" href="course-detail.html?id=${encodeURIComponent(r.id)}">과정 상세</a></footer></article>`;
+      }).join(''):'<div class="card course-empty-state">현재 공개된 과정이 없습니다.</div>';
+    }catch(e){
+      console.error('[SANGA] public courses',e);
+      grid.innerHTML='<div class="card course-empty-state"><strong>과정 정보를 불러오지 못했습니다.</strong><small>브라우저 콘솔의 [SANGA] public courses 오류를 확인해 주세요.</small></div>';
+    }
+  }
+
+  async function homeNotices(){
+    const host=homeNoticeHost(); if(!host)return;
+    try{
+      const notices=await api.loadNotices(3);
+      host.innerHTML=notices.map(n=>`<a class="notice-row" href="community.html"><span>${esc(n.title)}</span><time>${fmtDate(n.published_on)}</time></a>`).join('')||'<div class="notice-row">등록된 공지사항이 없습니다.</div>';
+    }catch(e){
+      console.error('[SANGA] public notices',e);
+      host.innerHTML='<div class="notice-row">공지사항을 불러오지 못했습니다.</div>';
+    }
+  }
+
+  async function home(){await Promise.allSettled([homeCourses(),homeNotices()]);}
+
+  async function noticesPage(){
+    const tb=document.querySelector('.data-table tbody'); if(!tb)return;
+    try{const data=await api.loadNotices();tb.innerHTML=data.map((n,i)=>`<tr><td>${i+1}</td><td><strong>${esc(n.title)}</strong><div style="margin-top:5px;color:#667085">${esc(n.content)}</div></td><td>${fmtDate(n.published_on)}</td><td>${Number(n.view_count||0)}</td></tr>`).join('')||'<tr><td colspan="4">등록된 공지사항이 없습니다.</td></tr>';}
+    catch(e){console.error('[SANGA] public notices page',e);tb.innerHTML='<tr><td colspan="4">공지사항을 불러오지 못했습니다.</td></tr>';}
+  }
+
+  async function jobsPage(){
+    const tb=document.querySelector('.data-table tbody'); if(!tb)return;
+    try{const data=await api.loadJobs();tb.innerHTML=data.map(j=>`<tr><td>${esc(j.category)}</td><td><strong>${esc(j.title)}</strong></td><td>${esc(j.company)}</td><td>${fmtDate(j.published_on)}</td></tr>`).join('')||'<tr><td colspan="4">등록된 취업정보가 없습니다.</td></tr>';}
+    catch(e){console.error('[SANGA] public jobs',e);tb.innerHTML='<tr><td colspan="4">취업정보를 불러오지 못했습니다.</td></tr>';}
+  }
+
+  function setAcademyStat(name,value){
+    const el=document.querySelector(`.stat-value[data-stat="${name}"]`);
+    if(!el)return;
+    const n=Number(value);
+    if(!Number.isFinite(n)){
+      el.textContent='—';
+      el.removeAttribute('data-count');
+      return;
+    }
+    el.dataset.count=String(Math.max(0,Math.round(n)));
+    el.dataset.counted='false';
+    el.textContent='0';
+  }
+
+  function historyYearSpan(rows){
+    const years=(rows||[]).map(x=>{
+      const m=String(x?.year_label||'').match(/(?:19|20)\d{2}/);
+      return m?Number(m[0]):NaN;
+    }).filter(Number.isFinite);
+    if(!years.length)return null;
+    const first=Math.min(...years);
+    const latest=Math.max(...years);
+    const end=Math.max(new Date().getFullYear(),latest);
+    return Math.max(1,end-first+1);
+  }
+
+  async function academyStats(){
+    if(!document.querySelector('.stat-value[data-stat]'))return;
+    setAcademyStat('practical',100);
+    try{
+      const [historyResult,coursesResult]=await Promise.allSettled([
+        api.loadHistory(),
+        api.queryCourses()
+      ]);
+
+      if(historyResult.status==='fulfilled'){
+        setAcademyStat('experience',historyYearSpan(historyResult.value));
+      }else{
+        setAcademyStat('experience',NaN);
+        console.error('[SANGA] academy stats history',historyResult.reason);
+      }
+
+      if(coursesResult.status==='fulfilled'){
+        const rows=Array.isArray(coursesResult.value)?coursesResult.value:[];
+        const typeCodes=new Set(rows.map(r=>String(r?.course_types?.code||'').trim()).filter(Boolean));
+        setAcademyStat('areas',typeCodes.size);
+        const funded=['unemployed','worker'].filter(code=>typeCodes.has(code)).length;
+        setAcademyStat('fundedTypes',funded);
+      }else{
+        setAcademyStat('areas',NaN);
+        setAcademyStat('fundedTypes',NaN);
+        console.error('[SANGA] academy stats courses',coursesResult.reason);
+      }
+    }finally{
+      window.dispatchEvent(new CustomEvent('sanga:stats-rendered'));
+    }
+  }
+
+  async function historyPage(){
+    const host=document.querySelector('#historyStage'); if(!host)return;
+    try{
+      const data=await api.loadHistory();
+      if(!data.length){
+        host.innerHTML='<div class="card content-card history-empty-state">등록된 학원 연혁이 없습니다.</div>';
+        return;
+      }
+
+      const total=data.length;
+      const pickCount=Math.min(5,total);
+      const featured=[];
+      for(let i=0;i<pickCount;i++){
+        const idx=pickCount===1?0:Math.round((total-1)*(i/(pickCount-1)));
+        if(!featured.includes(idx)) featured.push(idx);
+      }
+      for(let i=0;featured.length<pickCount && i<total;i++) if(!featured.includes(i)) featured.push(i);
+      featured.sort((a,b)=>a-b);
+
+      const startYear=esc(data[0].year_label||'');
+      const endYear=esc(data[data.length-1].year_label||'');
+      const milestoneCards=featured.map((idx,order)=>{
+        const x=data[idx];
+        const isCurrent=idx===data.length-1;
+        return `<article class="history-milestone-card${isCurrent?' is-current':''}" data-history-reveal>
+          <div class="history-milestone-top">
+            <span class="history-milestone-no">${String(order+1).padStart(2,'0')}</span>
+            <span class="history-milestone-tag">${esc(x.tag||'HISTORY')}</span>
+          </div>
+          <div class="history-milestone-year">${esc(x.year_label)}</div>
+          <h3>${esc(x.title)}</h3>
+          <p>${esc(x.description)}</p>
+          ${isCurrent?'<span class="history-current-badge">CURRENT</span>':''}
+        </article>`;
+      }).join('');
+
+      const details=data.map((x,i)=>`<article class="history-detail-row" data-history-reveal>
+        <div class="history-detail-year">${esc(x.year_label)}</div>
+        <div class="history-detail-dot" aria-hidden="true"></div>
+        <div class="history-detail-copy">
+          <div class="history-detail-meta"><span>${esc(x.tag||'HISTORY')}</span><span>${String(i+1).padStart(2,'0')}</span></div>
+          <h3>${esc(x.title)}</h3>
+          <p>${esc(x.description)}</p>
+        </div>
+      </article>`).join('');
+
+      host.innerHTML=`
+        <div class="history-overview" data-history-reveal>
+          <div class="history-range" aria-label="연혁 기간">
+            <strong>${startYear}</strong><span class="history-range-line" aria-hidden="true"><i></i></span><strong>${endYear}</strong>
+          </div>
+          <div class="history-overview-copy">
+            <b>${total}개의 성장 순간</b>
+            <span>중요한 변화와 도전을 중심으로 정리했습니다.</span>
+          </div>
+        </div>
+        <div class="history-milestones">${milestoneCards}</div>
+        <div class="history-expand">
+          <button class="history-toggle" id="historyToggle" type="button" aria-expanded="false" aria-controls="historyDetails">
+            <span class="history-toggle-label">전체 연혁 보기</span>
+            <span class="history-toggle-count">${total}</span>
+            <span class="history-toggle-icon" aria-hidden="true"></span>
+          </button>
+          <div class="history-details-shell" id="historyDetails" aria-hidden="true">
+            <div class="history-details-inner"><div class="history-details">${details}</div></div>
+          </div>
+        </div>`;
+      window.dispatchEvent(new CustomEvent('sanga:history-rendered'));
+    }catch(e){
+      console.error('[SANGA] public history',e);
+      host.innerHTML='<div class="card content-card history-empty-state">학원 연혁을 불러오지 못했습니다.</div>';
+    }
+  }
+
+  if(file==='index.html'||file==='')home();
+  if(file==='community.html')noticesPage();
+  if(file==='jobs.html')jobsPage();
+  if(file==='academy.html'){historyPage();academyStats();}
+})();

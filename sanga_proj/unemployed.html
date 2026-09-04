@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="상아컴퓨터학원 리뉴얼 사이트">
+  <title>실업자 내일배움카드 | 상아컴퓨터학원</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/styles.css?v=14">
+</head>
+<body>
+<header class="site-header">
+  <div class="topbar">
+    <div class="container">
+      <a href="index.html">HOME</a>
+      <a href="#">로그인</a>
+      <a href="#">회원가입</a>
+      <a href="#">사이트맵</a>
+      <a href="#">마이페이지</a>
+    </div>
+  </div>
+
+  <div class="container brand-row">
+    <a href="index.html" class="logo logo-premium" aria-label="상아컴퓨터학원 홈">
+      <span class="logo-symbol-wrap">
+        <img class="logo-symbol" src="assets/images/sanga-symbol-512.png" alt="">
+      </span>
+      <span class="logo-type">
+        <strong>상아컴퓨터학원</strong>
+        <span>정보올림피아드</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" aria-label="주요 메뉴">
+      <a  href="academy.html">학원소개</a>
+<a class="active" href="unemployed.html">실업자 내일배움카드</a>
+<a  href="worker.html">재직자 국비과정</a>
+<a  href="olympiad.html">정보올림피아드</a>
+<a  href="general.html">일반과정</a>
+<a  href="jobs.html">취업정보</a>
+<a  href="community.html">커뮤니티</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" type="button" data-open-inquiry>상담 신청</button>
+      <button class="mobile-menu-btn" type="button" id="mobileMenuBtn" aria-label="메뉴 열기" aria-expanded="false">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-box" data-reveal="scale">
+      <nav class="breadcrumb" aria-label="현재 위치">HOME › 실업자 내일배움카드</nav>
+      <h1>실업자 내일배움카드</h1>
+      <p>취업과 자격증 취득을 목표로 하는 국비지원 교육과정입니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="course-summary">
+      <article class="card course-summary-card primary motion-card" data-reveal="left">
+        <div class="section-kicker" style="color:#7fd9f5">Course Guide</div>
+        <h2 style="margin:7px 0 8px;font-size:30px">내게 맞는 과정을 더 쉽게 찾도록</h2>
+        <p>과정명, 교육기간, 시간, 지원구분을 한 화면에서 비교할 수 있도록 정보 우선순위를 정리했습니다.</p>
+      </article>
+      <aside class="card course-summary-card motion-card" data-reveal="right">
+        <div class="metric">0</div>
+        <div class="metric-label">등록된 과정</div>
+        <div class="metric" style="font-size:26px;margin-top:18px">0</div>
+        <div class="metric-label">과정 분야</div>
+      </aside>
+    </div>
+
+    <div class="toolbar" data-reveal>
+      <label>
+        <span class="sr-only">분야 선택</span>
+        <select id="categoryFilter">
+          <option value="">전체 분야</option>
+        </select>
+      </label>
+      <label style="flex:1 1 220px">
+        <span class="sr-only">과정 검색</span>
+        <input id="courseSearch" type="search" placeholder="과정명, 자격증, 프로그램명으로 검색">
+      </label>
+    </div>
+    <div class="course-grid" id="courseList" data-stagger>
+      <div class="card content-card" data-course-loading style="grid-column:1/-1">과정을 불러오는 중입니다.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<aside class="quick-dock" aria-label="빠른 메뉴">
+  <a href="community.html" class="quick-dock-item" aria-label="공지사항">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 13V9l12-4v12L4 13Z"></path><path d="M7 13l1 6h3l-1-5"></path><path d="M18 8c1 1 1 3 0 4"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>공지사항</strong><small>새 소식</small></span>
+  </a>
+
+  <a href="unemployed.html" class="quick-dock-item" aria-label="실업자 과정">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle><path d="M15.5 8.5 20 4"></path><path d="M16.5 4H20v3.5"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>실업자 과정</strong><small>국비지원</small></span>
+  </a>
+
+  <a href="worker.html" class="quick-dock-item" aria-label="재직자 과정">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="7" width="18" height="12" rx="2"></rect><path d="M9 7V5h6v2"></path><path d="M3 12h18"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>재직자 과정</strong><small>직무향상</small></span>
+  </a>
+
+  <a href="#contact" class="quick-dock-item" aria-label="상담 문의">
+    <span class="quick-dock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5Z"></path><path d="M8 9h8M8 12h5"></path></svg>
+    </span>
+    <span class="quick-dock-text"><strong>상담문의</strong><small>빠른상담</small></span>
+  </a>
+</aside>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="logo logo-premium" style="margin-bottom:10px">
+        <span class="logo-symbol-wrap">
+          <img class="logo-symbol" src="assets/images/sanga-symbol-512.png" alt="">
+        </span>
+        <span class="logo-type">
+          <strong>상아컴퓨터학원</strong>
+          <span>정보올림피아드</span>
+        </span>
+      </div>
+      <address class="footer-copy" style="font-style:normal">
+        인천광역시 계양구 경명대로 1124 · 명인프라자1 501호<br>
+        대표전화 032-541-0131 · 이메일 sang-a-com@hanmail.net<br>
+        © SANGACOMPUTER ACADEMY. ALL RIGHTS RESERVED.
+      </address>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-outline" href="academy.html#location">오시는 길</a>
+      <button class="btn btn-sky" type="button" data-open-inquiry>상담 문의</button>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="inquiryModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="inquiryTitle">
+    <div class="modal-head">
+      <h3 id="inquiryTitle">상담 신청</h3>
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기">✕</button>
+    </div>
+    <form class="form-grid" id="inquiryForm">
+      <label>이름<input name="name" required placeholder="홍길동"></label>
+      <label>연락처<input name="phone" required placeholder="010-0000-0000"></label>
+      <label>
+        관심과정
+        <select name="course">
+          <option>실업자 내일배움카드</option>
+          <option>재직자 국비과정</option>
+          <option>일반과정</option>
+          <option>정보올림피아드</option>
+        </select>
+      </label>
+      <label>문의내용<textarea name="message" placeholder="궁금한 내용을 남겨주세요."></textarea></label>
+      <button class="btn btn-primary" type="submit">상담 신청하기</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js?v=3"></script>
+<script src="assets/public-data.js?v=7"></script>
+<script src="assets/course-list-page.js?v=6"></script>
+<script src="assets/app.js?v=14"></script>
+</body>
+</html>

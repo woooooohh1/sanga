@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>수강과정 관리 | 상아컴퓨터학원 관리자</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
+  <link rel="stylesheet" href="admin.css?v=15.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js?v=2"></script>
+  <script src="auth.js?v=2"></script>
+</head>
+<body>
+<div class="admin-shell">
+  
+<aside class="admin-sidebar" id="adminSidebar">
+  <a class="admin-brand" href="index.html">
+    <img src="../assets/images/sanga-symbol-512.png" alt="">
+    <span><strong>상아컴퓨터학원</strong><span>관리자 페이지</span></span>
+  </a>
+  <nav class="admin-nav" aria-label="관리자 메뉴">
+    <a class="" href="index.html"><span class="nav-icon">▦</span>대시보드</a>
+<a class="active" href="courses.html"><span class="nav-icon">▤</span>수강과정 관리</a>
+<a class="" href="notices.html"><span class="nav-icon">◫</span>공지사항 관리</a>
+<a class="" href="jobs.html"><span class="nav-icon">▣</span>취업정보 관리</a>
+<a class="" href="history.html"><span class="nav-icon">◷</span>학원연혁 관리</a>
+<a class="" href="inquiries.html"><span class="nav-icon">◌</span>상담신청 관리</a>
+  </nav>
+  <div class="admin-sidebar-bottom">
+    <a class="admin-nav-link" href="../index.html" target="_blank" rel="noopener" style="color:#c9d2df;font-size:13px">↗ 홈페이지 보기</a>
+    <br><br>
+    
+  </div>
+</aside>
+
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button class="admin-mobile-toggle" id="adminMobileToggle" type="button" aria-label="관리자 메뉴 열기">☰</button>
+        <strong>수강과정 관리</strong>
+      </div>
+      <div class="admin-user">
+        <div class="admin-user-avatar">관</div>
+        <div><strong>관리자</strong><small>Administrator</small></div>
+        <button class="admin-logout-btn" type="button" data-admin-logout>로그아웃</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      
+<section class="page-title">
+  <div><h1>수강과정 관리</h1><p>국비지원·일반과정 목록을 코딩 없이 추가/수정할 수 있습니다.</p></div>
+  <button class="btn btn-primary" id="addCourseBtn" type="button">+ 과정 추가</button>
+</section>
+
+<div class="admin-card form-panel">
+  <div class="toolbar search-toolbar">
+    <select id="courseTypeFilter" aria-label="과정 구분">
+      <option value="">전체 구분</option>
+      <option value="unemployed">실업자 내일배움카드</option>
+      <option value="worker">재직자 국비과정</option>
+      <option value="general">일반과정</option>
+    </select>
+    <select id="courseStatusFilter" aria-label="모집 상태">
+      <option value="">전체 상태</option>
+      <option value="모집중">모집중</option>
+      <option value="상시접수">상시접수</option>
+      <option value="마감">마감</option>
+      <option value="준비중">준비중</option>
+    </select>
+    <select id="coursePublishFilter" aria-label="공개 상태">
+      <option value="">전체 공개여부</option>
+      <option value="published">공개</option>
+      <option value="hidden">비공개</option>
+    </select>
+    <input id="courseSearch" type="search" placeholder="과정명 · 분야 · 설명 검색" aria-label="과정 검색">
+    <button class="btn btn-outline filter-reset" type="button" data-reset-filters="courses">초기화</button>
+  </div>
+
+  <!--
+    [DB/API 연동 지점]
+    GET /api/admin/courses
+    아래 tbody를 서버 또는 API 응답으로 렌더링합니다.
+  -->
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>번호</th><th>구분</th><th>분야</th><th>과정명</th><th>상태</th><th>공개</th><th>교육기간</th><th>관리</th></tr></thead>
+      <tbody id="courseTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<div class="admin-modal" id="courseStartModal">
+  <div class="admin-modal-card course-start-modal-card">
+    <div class="admin-modal-head">
+      <div>
+        <h2>새 과정 만들기</h2>
+        <p class="admin-modal-sub">처음부터 작성하거나 기존 과정을 복사해서 빠르게 시작할 수 있습니다.</p>
+      </div>
+      <button class="modal-close" id="courseStartModalClose" type="button" aria-label="닫기">✕</button>
+    </div>
+
+    <div class="course-start-body">
+      <div class="course-start-mode-grid" role="radiogroup" aria-label="새 과정 시작 방식">
+        <button class="course-start-mode is-active" type="button" data-course-start-mode="blank" aria-pressed="true">
+          <span class="course-start-mode-icon">＋</span>
+          <span class="course-start-mode-copy"><strong>빈 과정으로 시작</strong><small>새 과정 정보를 처음부터 직접 입력합니다.</small></span>
+          <span class="course-start-mode-check">✓</span>
+        </button>
+        <button class="course-start-mode" type="button" data-course-start-mode="copy" aria-pressed="false">
+          <span class="course-start-mode-icon">⧉</span>
+          <span class="course-start-mode-copy"><strong>기존 과정 복사</strong><small>과정 상세내용과 최근 기수 정보를 선택해서 가져옵니다.</small></span>
+          <span class="course-start-mode-check">✓</span>
+        </button>
+      </div>
+
+      <div class="course-copy-options" id="courseCopyOptions" hidden>
+        <div class="course-copy-source-row">
+          <div class="form-field">
+            <label for="courseCopySource">복사할 과정</label>
+            <select id="courseCopySource">
+              <option value="">과정을 선택하세요</option>
+            </select>
+          </div>
+          <div class="course-copy-source-preview" id="courseCopySourcePreview">
+            <span>선택한 과정의 최근 기수와 공개 상태를 여기에서 확인할 수 있습니다.</span>
+          </div>
+        </div>
+
+        <div class="course-copy-scope-block">
+          <div class="course-copy-scope-head">
+            <div><strong>복사 범위</strong><small>필요한 항목만 선택해서 가져올 수 있습니다.</small></div>
+            <div class="course-copy-scope-actions"><button type="button" data-copy-scope-all>전체 선택</button><button type="button" data-copy-scope-none>전체 해제</button></div>
+          </div>
+          <div class="course-copy-scope-grid">
+            <label class="course-copy-scope"><input type="checkbox" value="basic" checked><span><b>기본 정보</b><small>구분 · 분야 · 설명 · 태그</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="hero" checked><span><b>상세 소개</b><small>상단문구 · 배지 · 핵심포인트</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="competencies" checked><span><b>핵심 역량</b><small>수료 후 역량 카드</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="curriculum" checked><span><b>커리큘럼</b><small>단계와 세부 학습내용</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="targets" checked><span><b>추천 대상</b><small>과정 추천 학습자</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="benefits" checked><span><b>수강 혜택</b><small>지원 · 실습 · 피드백</small></span></label>
+            <label class="course-copy-scope"><input type="checkbox" value="faqs" checked><span><b>FAQ</b><small>자주 묻는 질문과 답변</small></span></label>
+            <label class="course-copy-scope course-copy-scope-accent"><input type="checkbox" value="cohort" checked><span><b>최근 기수 운영정보</b><small>기간 · 시간 · 정원 · 수강료 · 요일</small></span></label>
+          </div>
+        </div>
+
+        <div class="course-copy-notice">
+          <span>i</span>
+          <p><strong>안전하게 새 과정으로 생성됩니다.</strong> 과정 ID와 URL 식별자는 새로 만들어지고, 홈페이지 공개는 기본적으로 <b>비공개</b>로 시작합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-start-actions">
+      <button class="btn btn-outline" id="courseStartCancel" type="button">취소</button>
+      <button class="btn btn-primary" id="courseStartConfirm" type="button">빈 과정 작성하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-modal" id="courseModal">
+  <div class="admin-modal-card course-editor-modal">
+    <div class="admin-modal-head">
+      <div>
+        <h2 id="courseModalTitle">과정 추가</h2>
+        <p class="admin-modal-sub">코드를 수정하지 않고 상세페이지 전체 내용을 관리합니다.</p>
+      </div>
+      <button class="modal-close" id="courseModalClose" type="button" aria-label="닫기">✕</button>
+    </div>
+
+    <form id="courseForm">
+      <input type="hidden" name="id" id="courseId">
+
+      <div class="course-editor-section" data-course-section="basic">
+        <div class="course-editor-section-head"><div><span>01</span><h3>기본 정보</h3></div><p>목록과 상세페이지에 공통으로 표시됩니다.</p></div>
+
+        <div class="cohort-reuse-panel" id="cohortReusePanel" hidden>
+          <div class="cohort-reuse-copy">
+            <span class="cohort-reuse-icon" aria-hidden="true">↻</span>
+            <div>
+              <strong>기수 데이터 재사용</strong>
+              <small>기존 기수의 모집·교육기간, 시간, 정원, 수강료, 지원구분, 수업요일을 불러와 빠르게 수정할 수 있습니다.</small>
+            </div>
+          </div>
+          <div class="cohort-reuse-controls">
+            <div class="form-field cohort-reuse-select-field">
+              <label for="cohortReuseSelect">기준 기수</label>
+              <select id="cohortReuseSelect" data-cohort-source>
+                <option value="">기수를 선택하세요</option>
+              </select>
+            </div>
+            <div class="cohort-reuse-buttons">
+              <button class="btn btn-outline" id="cohortEditSelectedBtn" type="button">선택 기수 편집</button>
+              <button class="btn btn-primary" id="cohortCloneBtn" type="button">새 기수로 복사</button>
+            </div>
+          </div>
+          <div class="cohort-reuse-note-row">
+            <div class="cohort-reuse-note" id="cohortReuseNote">현재 과정에 등록된 기수를 불러오는 중입니다.</div>
+            <label class="cohort-duration-toggle" title="새 기수로 복사한 뒤 시작일을 바꾸면 기존 기간 길이를 유지해 종료일도 함께 이동합니다.">
+              <input type="checkbox" id="cohortKeepDuration" checked>
+              <span>기간 간격 유지</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field"><label>과정 구분</label><select name="type" required><option value="unemployed">실업자 내일배움카드</option><option value="worker">재직자 국비과정</option><option value="general">일반과정</option></select></div>
+          <div class="form-field"><label>분야</label><input name="category" required placeholder="예: 컴퓨터활용"></div>
+          <div class="form-field full"><label>과정명</label><input name="title" required placeholder="과정명을 입력하세요"></div>
+          <div class="form-field"><label>홈페이지 공개</label><select name="published"><option value="true">공개</option><option value="false">비공개</option></select></div>
+          <div class="form-field"><label>기수 연도</label><input name="cohort_year" type="number" min="2000" max="2100" placeholder="2026"></div>
+          <div class="form-field"><label>기수 번호</label><input name="cohort_number" type="number" min="1" placeholder="1"></div>
+          <div class="form-field"><label>기수명</label><input name="cohort_name" placeholder="예: 2026년 1기"></div>
+          <div class="form-field"><label>모집 방식</label><select name="recruitment_type"><option value="scheduled">기간 모집</option><option value="rolling">상시접수</option></select></div>
+          <div class="form-field"><label>모집 시작일</label><input name="application_start_date" type="date"></div>
+          <div class="form-field"><label>모집 종료일</label><input name="application_end_date" type="date"></div>
+          <div class="form-field"><label>교육 시작일</label><input name="course_start_date" type="date" required></div>
+          <div class="form-field"><label>교육 종료일</label><input name="course_end_date" type="date" required></div>
+          <div class="form-field"><label>수업 시작시간</label><input name="class_start_time" type="time"></div>
+          <div class="form-field"><label>수업 종료시간</label><input name="class_end_time" type="time"></div>
+          <div class="form-field"><label>정원</label><input name="capacity" type="number" min="1" placeholder="20"></div>
+          <div class="form-field"><label>수강료</label><input name="tuition" inputmode="numeric" placeholder="예: 480000"></div>
+          <div class="form-field full"><label>지원구분</label><input name="support" placeholder="예: 국비지원 대상자는 자부담금이 달라질 수 있습니다."></div>
+          <div class="form-field full"><label>수업 요일</label><div style="display:flex;gap:14px;flex-wrap:wrap;padding:10px 0"><label><input type="checkbox" name="weekdays" value="1"> 월</label><label><input type="checkbox" name="weekdays" value="2"> 화</label><label><input type="checkbox" name="weekdays" value="3"> 수</label><label><input type="checkbox" name="weekdays" value="4"> 목</label><label><input type="checkbox" name="weekdays" value="5"> 금</label><label><input type="checkbox" name="weekdays" value="6"> 토</label><label><input type="checkbox" name="weekdays" value="7"> 일</label></div></div>
+          <div class="form-field full"><label>목록용 짧은 설명</label><textarea name="description" rows="3" placeholder="과정 목록 카드에 표시할 짧은 소개"></textarea></div>
+          <div class="form-field full"><label>태그</label><input name="tags" placeholder="엑셀,자격증,국비지원"><div class="form-help">쉼표(,)로 구분합니다.</div></div>
+        </div>
+      </div>
+
+      <div class="course-editor-section" data-course-section="hero">
+        <div class="course-editor-section-head"><div><span>02</span><h3>상세페이지 첫 화면</h3></div><p>방문자가 가장 먼저 보는 소개 영역입니다.</p></div>
+        <div class="form-grid">
+          <div class="form-field"><label>상단 작은 문구</label><input name="eyebrow" placeholder="예: 국민내일배움카드 · 자격증 대비"></div>
+          <div class="form-field"><label>요약 배지</label><input name="badge" placeholder="예: 취업·사무 역량"></div>
+          <div class="form-field full"><label>상세 소개문</label><textarea name="lead" rows="4" placeholder="과정의 장점과 목표를 2~3문장으로 소개하세요."></textarea></div>
+        </div>
+        <div class="repeater-block">
+          <div class="repeater-title"><div><strong>핵심 포인트</strong><small>첫 화면 제목 아래에 짧게 표시됩니다.</small></div><button class="btn btn-outline btn-small" type="button" data-add-repeater="heroPoints">+ 포인트 추가</button></div>
+          <div class="repeater-list" id="heroPointsEditor"></div>
+        </div>
+      </div>
+
+      <div class="course-editor-section" data-course-section="competencies">
+        <div class="course-editor-section-head"><div><span>03</span><h3>핵심 역량</h3></div><p>수료 후 무엇을 할 수 있는지 카드로 보여줍니다.</p></div>
+        <div class="repeater-list" id="outcomesEditor"></div>
+        <button class="btn btn-outline repeater-add-bottom" type="button" data-add-repeater="outcomes">+ 핵심 역량 추가</button>
+      </div>
+
+      <div class="course-editor-section" data-course-section="curriculum">
+        <div class="course-editor-section-head"><div><span>04</span><h3>커리큘럼</h3></div><p>단계별 학습내용을 자유롭게 추가하거나 삭제할 수 있습니다.</p></div>
+        <div class="repeater-list" id="curriculumEditor"></div>
+        <button class="btn btn-outline repeater-add-bottom" type="button" data-add-repeater="curriculum">+ 단계 추가</button>
+      </div>
+
+      <div class="course-editor-section" data-course-section="targets">
+        <div class="course-editor-section-head"><div><span>05</span><h3>추천 대상</h3></div><p>이 과정을 추천할 학습자를 입력하세요.</p></div>
+        <div class="repeater-list" id="targetsEditor"></div>
+        <button class="btn btn-outline repeater-add-bottom" type="button" data-add-repeater="targets">+ 추천 대상 추가</button>
+      </div>
+
+      <div class="course-editor-section" data-course-section="benefits">
+        <div class="course-editor-section-head"><div><span>06</span><h3>수강 혜택</h3></div><p>지원, 실습, 피드백 등 과정의 장점을 설명합니다.</p></div>
+        <div class="repeater-list" id="benefitsEditor"></div>
+        <button class="btn btn-outline repeater-add-bottom" type="button" data-add-repeater="benefits">+ 혜택 추가</button>
+      </div>
+
+      <div class="course-editor-section" data-course-section="faqs">
+        <div class="course-editor-section-head"><div><span>07</span><h3>자주 묻는 질문</h3></div><p>질문과 답변을 원하는 만큼 추가할 수 있습니다.</p></div>
+        <div class="repeater-list" id="faqsEditor"></div>
+        <button class="btn btn-outline repeater-add-bottom" type="button" data-add-repeater="faqs">+ FAQ 추가</button>
+      </div>
+
+      <div class="course-editor-sticky-actions">
+        <button class="btn btn-outline" id="coursePreviewBtn" type="button">미리보기</button>
+        <div class="course-editor-action-right"><button class="btn btn-outline" id="courseModalClose2" type="button">취소</button><button class="btn btn-primary" type="submit">저장하기</button></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+<div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
+<script src="admin-controls.js?v=13.5"></script>
+<script src="admin.js?v=15.0"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>취업정보 관리 | 상아컴퓨터학원 관리자</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png">
+  <link rel="stylesheet" href="admin.css?v=13.4">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js?v=2"></script>
+  <script src="auth.js?v=2"></script>
+</head>
+<body>
+<div class="admin-shell">
+  
+<aside class="admin-sidebar" id="adminSidebar">
+  <a class="admin-brand" href="index.html">
+    <img src="../assets/images/sanga-symbol-512.png" alt="">
+    <span><strong>상아컴퓨터학원</strong><span>관리자 페이지</span></span>
+  </a>
+  <nav class="admin-nav" aria-label="관리자 메뉴">
+    <a class="" href="index.html"><span class="nav-icon">▦</span>대시보드</a>
+<a class="" href="courses.html"><span class="nav-icon">▤</span>수강과정 관리</a>
+<a class="" href="notices.html"><span class="nav-icon">◫</span>공지사항 관리</a>
+<a class="active" href="jobs.html"><span class="nav-icon">▣</span>취업정보 관리</a>
+<a class="" href="history.html"><span class="nav-icon">◷</span>학원연혁 관리</a>
+<a class="" href="inquiries.html"><span class="nav-icon">◌</span>상담신청 관리</a>
+  </nav>
+  <div class="admin-sidebar-bottom">
+    <a class="admin-nav-link" href="../index.html" target="_blank" rel="noopener" style="color:#c9d2df;font-size:13px">↗ 홈페이지 보기</a>
+    <br><br>
+    
+  </div>
+</aside>
+
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button class="admin-mobile-toggle" id="adminMobileToggle" type="button" aria-label="관리자 메뉴 열기">☰</button>
+        <strong>취업정보 관리</strong>
+      </div>
+      <div class="admin-user">
+        <div class="admin-user-avatar">관</div>
+        <div><strong>관리자</strong><small>Administrator</small></div>
+        <button class="admin-logout-btn" type="button" data-admin-logout>로그아웃</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      
+<section class="page-title">
+  <div><h1>취업정보 관리</h1><p>수료생에게 노출할 채용정보를 관리합니다.</p></div>
+  <button class="btn btn-primary" id="addJobBtn" type="button">+ 채용정보 등록</button>
+</section>
+
+<div class="admin-card form-panel">
+  <div class="toolbar search-toolbar">
+    <select id="jobStatusFilter" aria-label="채용정보 상태">
+      <option value="">전체 상태</option>
+      <option value="게시">게시</option>
+      <option value="임시저장">임시저장</option>
+    </select>
+    <input id="jobCategoryFilter" type="search" placeholder="분야 검색" aria-label="채용 분야 검색">
+    <input id="jobSearch" type="search" placeholder="제목 · 기업명 검색" aria-label="채용정보 검색">
+    <button class="btn btn-outline filter-reset" type="button" data-reset-filters="jobs">초기화</button>
+  </div>
+  <!-- [DB/API 연동 지점] GET /api/admin/jobs -->
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>번호</th><th>분야</th><th>제목</th><th>기업</th><th>등록일</th><th>관리</th></tr></thead>
+      <tbody id="jobTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-modal" id="jobModal">
+  <div class="admin-modal-card">
+    <div class="admin-modal-head"><h2 id="jobModalTitle">새 항목 등록</h2><button class="modal-close" data-close="jobModal" type="button">✕</button></div>
+    <form id="jobForm">
+      <input type="hidden" name="id" id="jobId">
+      <div class="form-grid">
+        <div class="form-field"><label>분야</label><input name="category" required placeholder="사무·회계"></div>
+        <div class="form-field"><label>기업명</label><input name="company" required></div>
+        <div class="form-field full"><label>제목</label><input name="title" required></div>
+        <div class="form-field"><label>상태</label><select name="status"><option>게시</option><option>임시저장</option></select></div>
+        <div class="form-field"><label>등록일</label><input name="date" type="date" required></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" type="submit">저장</button></div>
+    </form>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+<div class="admin-toast" id="adminToast" role="status" aria-live="polite"></div>
+<script src="admin-controls.js?v=13.4"></script>
+<script src="admin.js?v=13.0"></script>
+</body>
+</html>
